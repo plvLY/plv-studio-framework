@@ -36,6 +36,24 @@ function resolveRemotePatterns() {
   }
 }
 
+/**
+ * 构建期数据守卫：缺少 DATA_BASE 时让 build 直接失败。
+ * 仅作用于 build，不影响 astro check 与 dev；具体数据校验由 data-source 负责。
+ */
+const dataEnvironmentGuard = {
+  name: 'plv-data-environment-guard',
+  hooks: {
+    /** @param {{ command: string }} context */
+    'astro:config:setup': ({ command }) => {
+      if (command === 'build' && !process.env.DATA_BASE?.trim()) {
+        throw new Error(
+          'DATA_BASE 未设置：npm run build 前必须注入数据站点基址，例如 DATA_BASE=http://localhost:4321。',
+        );
+      }
+    },
+  },
+};
+
 export default defineConfig({
   // 纯静态输出：全部页面构建期预渲染，不使用 SSR adapter。
   output: 'static',
@@ -45,6 +63,7 @@ export default defineConfig({
   image: {
     remotePatterns: resolveRemotePatterns(),
   },
+  integrations: [dataEnvironmentGuard],
   vite: {
     plugins: [tailwindcss()],
   },

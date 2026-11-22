@@ -30,3 +30,24 @@ export const LINK_TYPE_LABELS: Record<LinkType, string> = {
 
 /** 阶段 1 尚未开始时，当前阶段的展示文案。 */
 export const PREPARING_STAGE_LABEL = '准备中';
+
+export interface SiteNavItem {
+  href: string;
+  label: string;
+}
+
+/** 全站主导航，Header / Footer / MobileNav 共用。 */
+export const SITE_NAV_ITEMS: readonly SiteNavItem[] = [
+  { href: '/', label: '首页' },
+  { href: '/projects/', label: '作品' },
+  { href: '/about/', label: '关于' },
+];
+
+/** 判断导航项是否为当前页；/projects/{slug}/ 归属 Projects。 */
+export function isNavItemActive(href: string, pathname: string): boolean {
+  if (href === '/') {
+    return pathname === '/';
+  }
+
+  return pathname === href || pathname.startsWith(href);
+}

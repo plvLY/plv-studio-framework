@@ -1,0 +1,139 @@
+---
+import type { Profile } from '../../lib/contracts';
+
+interface Props {
+  profile: Profile;
+}
+
+const { profile } = Astro.props;
+const year = new Date().getFullYear();
+const isExternal = (url: string) => url.startsWith('https://');
+---
+
+<footer class="site-footer">
+  <div class="container site-footer__inner">
+    <div class="site-footer__brand">
+      <a class="site-footer__name" href="/">
+        <img class="site-footer__logo" src="/logo.png" alt="" width="28" height="28" />
+        <span>{profile.brand.studioName}</span>
+      </a>
+      <img
+        class="site-footer__signature"
+        src="/plv.png"
+        alt="吖飘 PLV 品牌签名"
+        width="363"
+        height="139"
+      />
+    </div>
+
+    <div class="site-footer__meta">
+      <p class="site-footer__credit">由吖飘创建</p>
+      <ul class="site-footer__social">
+        {
+          profile.social.map((link) => (
+            <li>
+              <a
+                href={link.url}
+                target={isExternal(link.url) ? '_blank' : undefined}
+                rel={isExternal(link.url) ? 'noopener noreferrer' : undefined}
+              >
+                {link.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="site-footer__copyright">© {year} {profile.brand.studioName}</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: var(--space-16);
+    border-top: var(--border-width) solid var(--color-border);
+    background: var(--color-surface);
+  }
+
+  .site-footer__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4) var(--space-8);
+    padding-block: var(--space-8);
+  }
+
+  .site-footer__brand {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  .site-footer__name {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-text-primary);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+  }
+
+  .site-footer__logo {
+    display: block;
+    width: 28px;
+    height: 28px;
+  }
+
+  .site-footer__signature {
+    display: block;
+    width: auto;
+    height: 28px;
+  }
+
+  .site-footer__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2) var(--space-4);
+    color: var(--color-text-secondary);
+    font-size: 14px;
+  }
+
+  .site-footer__meta p {
+    margin: 0;
+  }
+
+  .site-footer__social {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .site-footer__social a {
+    color: var(--color-text-secondary);
+    text-decoration: none;
+  }
+
+  .site-footer__social a:hover {
+    color: var(--color-text-primary);
+    text-decoration: underline;
+  }
+
+  .site-footer__copyright {
+    color: var(--color-text-muted);
+  }
+
+  @media (max-width: 47.999rem) {
+    .site-footer__inner {
+      align-items: flex-start;
+      padding-block: var(--space-6);
+    }
+  }
+</style>

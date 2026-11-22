@@ -1,0 +1,275 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+import { SITE_NAV_ITEMS, isNavItemActive } from '../../lib/constants';
+
+interface Props {
+  brandName: string;
+}
+
+const { brandName } = Astro.props;
+const pathname = Astro.url.pathname;
+---
+
+<div class="mobile-nav" id="mobile-nav" data-mobile-nav hidden>
+  <div class="mobile-nav__panel" role="dialog" aria-modal="true" aria-label="站点菜单">
+    <div class="mobile-nav__head">
+      <a class="mobile-nav__brand" href="/">{brandName}</a>
+      <button type="button" class="mobile-nav__close" aria-label="关闭菜单" data-nav-close>
+        <svg
+          viewBox="0 0 24 24"
+          width="20"
+          height="20"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M6 6l12 12M18 6L6 18"></path>
+        </svg>
+      </button>
+    </div>
+
+    <nav aria-label="移动端主导航">
+      <ul class="mobile-nav__list">
+        {
+          SITE_NAV_ITEMS.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                aria-current={isNavItemActive(item.href, pathname) ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="mobile-nav__theme">
+      <span class="mobile-nav__theme-label">主题</span>
+      <ThemeToggle id="mobile-theme-menu" />
+    </div>
+  </div>
+</div>
+
+<script>
+  const root = document.querySelector('[data-mobile-nav]');
+  const trigger = document.querySelector('[data-nav-trigger]');
+  const panel = root?.querySelector('[role="dialog"]');
+  const closeButton = root?.querySelector('[data-nav-close]');
+
+  if (
+    root instanceof HTMLElement &&
+    trigger instanceof HTMLButtonElement &&
+    panel instanceof HTMLElement
+  ) {
+    let lastFocused: HTMLElement | null = null;
+    let previousBodyOverflow = '';
+    let previousHtmlOverflow = '';
+
+    const getFocusable = () =>
+      Array.from(
+        panel.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      ).filter((element) => element.offsetParent !== null);
+
+    const lockScroll = () => {
+      previousBodyOverflow = document.body.style.overflow;
+      previousHtmlOverflow = document.documentElement.style.overflow;
+      document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflow = 'hidden';
+    };
+
+    const unlockScroll = () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousHtmlOverflow;
+    };
+
+    const open = () => {
+      if (!root.hidden) {
+        return;
+      }
+
+      lastFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      root.hidden = false;
+      trigger.setAttribute('aria-expanded', 'true');
+      lockScroll();
+
+      if (closeButton instanceof HTMLElement) {
+        closeButton.focus();
+      }
+    };
+
+    const close = (returnFocus: boolean) => {
+      if (root.hidden) {
+        return;
+      }
+
+      root.hidden = true;
+      trigger.setAttribute('aria-expanded', 'false');
+      unlockScroll();
+
+      if (returnFocus) {
+        (lastFocused ?? trigger).focus();
+      }
+    };
+
+    trigger.addEventListener('click', () => {
+      if (root.hidden) {
+        open();
+      } else {
+        close(true);
+      }
+    });
+
+    if (closeButton instanceof HTMLElement) {
+      closeButton.addEventListener('click', () => close(true));
+    }
+
+    panel.querySelectorAll('a[href]').forEach((link) => {
+      link.addEventListener('click', () => close(false));
+    });
+
+    panel.addEventListener('keydown', (event) => {
+      if (event.key !== 'Tab' || root.hidden) {
+        return;
+      }
+
+      const items = getFocusable();
+
+      if (items.length === 0) {
+        return;
+      }
+
+      const first = items[0];
+      const last = items[items.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && !root.hidden) {
+        event.preventDefault();
+        close(true);
+      }
+    });
+
+    const desktopQuery = window.matchMedia('(min-width: 48rem)');
+
+    desktopQuery.addEventListener('change', (event) => {
+      if (event.matches) {
+        close(false);
+      }
+    });
+  }
+</script>
+
+<style>
+  .mobile-nav {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    background: var(--color-surface);
+  }
+
+  .mobile-nav[hidden] {
+    display: none;
+  }
+
+  .mobile-nav__panel {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    padding: 0 var(--container-padding) var(--space-8);
+    overflow-y: auto;
+    background: var(--color-surface);
+  }
+
+  .mobile-nav__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: var(--header-height);
+  }
+
+  .mobile-nav__brand {
+    color: var(--color-text-primary);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+  }
+
+  .mobile-nav__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+  }
+
+  .mobile-nav__close:hover {
+    color: var(--color-text-primary);
+    border-color: var(--color-border-strong);
+  }
+
+  .mobile-nav__list {
+    display: grid;
+    gap: 0;
+    margin: var(--space-6) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .mobile-nav__list a {
+    display: block;
+    padding: var(--space-3) 0;
+    border-bottom: var(--border-width) solid var(--color-border);
+    color: var(--color-text-secondary);
+    font-size: 20px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .mobile-nav__list a[aria-current='page'] {
+    color: var(--color-text-primary);
+  }
+
+  .mobile-nav__theme {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    margin-top: auto;
+    padding-top: var(--space-6);
+    border-top: var(--border-width) solid var(--color-border);
+  }
+
+  .mobile-nav__theme-label {
+    color: var(--color-text-secondary);
+    font-size: 14px;
+  }
+
+  @media (min-width: 48rem) {
+    .mobile-nav {
+      display: none;
+    }
+  }
+</style>

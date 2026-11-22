@@ -1,22 +1,14 @@
 ---
-// T-06-01-08 的最小占位首页，仅用于验证工程基线可构建。
-// 正式首页结构将在 T-06-09 按 UI 设计实现。
-const title = 'PLV Studio — Build. Document. Deliver.';
+// T-06-07 起使用全局布局；正式首页区块将在 T-06-09 按 UI 设计实现。
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const title = 'PLV Studio — 个人研发工作室';
 const description = 'PLV Studio 是吖飘创建和运营的个人研发工作室。';
 ---
 
-<!doctype html>
-<html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title}</title>
-    <meta name="description" content={description} />
-  </head>
-  <body>
-    <main>
-      <h1>PLV Studio</h1>
-      <p>Build. Document. Deliver.</p>
-    </main>
-  </body>
-</html>
+<BaseLayout title={title} description={description}>
+  <section class="container" style="padding-block: var(--space-16);">
+    <h1>PLV Studio</h1>
+    <p>个人研发工作室</p>
+  </section>
+</BaseLayout>

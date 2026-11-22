@@ -1,0 +1,48 @@
+---
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  <div class="container doc-layout">
+    <aside class="doc-layout__toc" aria-label="文档目录">
+      <slot name="toc" />
+    </aside>
+    <div class="doc-layout__content">
+      <slot />
+    </div>
+    <aside class="doc-layout__aside" aria-label="文档信息">
+      <slot name="aside" />
+    </aside>
+  </div>
+</BaseLayout>
+
+<style>
+  .doc-layout {
+    display: grid;
+    grid-template-columns: 220px minmax(0, 1fr) 200px;
+    gap: var(--space-8);
+    padding-block: var(--space-10);
+  }
+
+  .doc-layout__content {
+    min-width: 0;
+  }
+
+  @media (max-width: 63.999rem) {
+    .doc-layout {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .doc-layout__toc,
+    .doc-layout__aside {
+      display: none;
+    }
+  }
+</style>

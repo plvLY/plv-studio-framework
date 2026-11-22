@@ -1,0 +1,23 @@
+<a class="skip-link" href="#main">跳到主要内容</a>
+
+<style>
+  .skip-link {
+    position: fixed;
+    top: 8px;
+    left: 8px;
+    z-index: 200;
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
+    background: var(--color-brand);
+    color: var(--color-page);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transform: translateY(-200%);
+    transition: transform var(--transition-fast);
+  }
+
+  .skip-link:focus {
+    transform: translateY(0);
+  }
+</style>

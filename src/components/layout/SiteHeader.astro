@@ -1,0 +1,192 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+import MobileNav from './MobileNav.astro';
+import { SITE_NAV_ITEMS, isNavItemActive } from '../../lib/constants';
+
+interface Props {
+  brandName: string;
+}
+
+const { brandName } = Astro.props;
+const pathname = Astro.url.pathname;
+---
+
+<header class="site-header" data-site-header>
+  <div class="container site-header__inner">
+    <a class="site-header__brand" href="/">
+      <img class="site-header__logo" src="/logo.png" alt="" width="28" height="28" />
+      <span>{brandName}</span>
+    </a>
+
+    <nav class="site-header__nav" aria-label="主导航">
+      <ul>
+        {
+          SITE_NAV_ITEMS.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                aria-current={isNavItemActive(item.href, pathname) ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+
+    <div class="site-header__actions">
+      <div class="site-header__theme">
+        <ThemeToggle />
+      </div>
+
+      <button
+        type="button"
+        class="site-header__menu"
+        aria-label="打开菜单"
+        aria-expanded="false"
+        aria-controls="mobile-nav"
+        data-nav-trigger
+      >
+        <svg
+          viewBox="0 0 24 24"
+          width="20"
+          height="20"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M4 7h16M4 12h16M4 17h16"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+</header>
+
+<MobileNav brandName={brandName} />
+
+<script>
+  const header = document.querySelector('[data-site-header]');
+
+  if (header instanceof HTMLElement) {
+    const updateShadow = () => {
+      header.setAttribute('data-scrolled', String(window.scrollY > 4));
+    };
+
+    updateShadow();
+    window.addEventListener('scroll', updateShadow, { passive: true });
+  }
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    height: var(--header-height);
+    background: var(--color-surface);
+    border-bottom: var(--border-width) solid var(--color-border);
+  }
+
+  .site-header[data-scrolled='true'] {
+    box-shadow: var(--shadow-sm);
+  }
+
+  .site-header__inner {
+    display: flex;
+    align-items: center;
+    gap: var(--space-8);
+    height: 100%;
+  }
+
+  .site-header__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    color: var(--color-text-primary);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .site-header__logo {
+    display: block;
+    width: 28px;
+    height: 28px;
+  }
+
+  .site-header__nav ul {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .site-header__nav a {
+    display: inline-block;
+    padding: 6px 0;
+    border-bottom: 2px solid transparent;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    text-decoration: none;
+    transition:
+      color var(--transition-fast),
+      border-color var(--transition-fast);
+  }
+
+  .site-header__nav a:hover {
+    color: var(--color-text-primary);
+  }
+
+  .site-header__nav a[aria-current='page'] {
+    color: var(--color-text-primary);
+    border-bottom-color: var(--color-brand);
+  }
+
+  .site-header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin-left: auto;
+  }
+
+  .site-header__menu {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+  }
+
+  .site-header__menu:hover {
+    color: var(--color-text-primary);
+    border-color: var(--color-border-strong);
+  }
+
+  @media (max-width: 47.999rem) {
+    .site-header {
+      gap: var(--space-4);
+    }
+
+    .site-header__nav,
+    .site-header__theme {
+      display: none;
+    }
+
+    .site-header__menu {
+      display: inline-flex;
+    }
+  }
+</style>

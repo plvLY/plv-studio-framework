@@ -1,0 +1,36 @@
+---
+// 首屏主题脚本：必须放在 <head> 中、绘制前执行，避免主题闪烁。
+// 与 ThemeToggle 共用 localStorage 键 plv-theme，模式为 light / dark / system。
+---
+
+<script is:inline>
+  (() => {
+    const storageKey = 'plv-theme';
+    const media = window.matchMedia('(prefers-color-scheme: dark)');
+    let stored = null;
+
+    try {
+      stored = localStorage.getItem(storageKey);
+    } catch {
+      stored = null;
+    }
+
+    const mode = stored === 'light' || stored === 'dark' || stored === 'system' ? stored : 'system';
+
+    const apply = (nextMode) => {
+      const theme = nextMode === 'system' ? (media.matches ? 'dark' : 'light') : nextMode;
+      const root = document.documentElement;
+      root.dataset.theme = theme;
+      root.dataset.themeMode = nextMode;
+      root.style.colorScheme = theme;
+    };
+
+    apply(mode);
+
+    media.addEventListener('change', () => {
+      if (document.documentElement.dataset.themeMode === 'system') {
+        apply('system');
+      }
+    });
+  })();
+</script>

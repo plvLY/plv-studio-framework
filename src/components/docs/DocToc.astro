@@ -1,0 +1,82 @@
+---
+interface TocItem {
+  id: string;
+  text: string;
+  level?: number;
+}
+
+interface Props {
+  items: readonly TocItem[];
+  activeId?: string;
+}
+
+const { items, activeId } = Astro.props;
+---
+
+<nav class="doc-toc" aria-label="文档目录">
+  <p class="doc-toc__title">目录</p>
+  <ol>
+    {
+      items.map((item) => (
+        <li data-level={item.level ?? 2}>
+          <a
+            href={`#${item.id}`}
+            aria-current={item.id === activeId ? 'location' : undefined}
+          >
+            {item.text}
+          </a>
+        </li>
+      ))
+    }
+  </ol>
+</nav>
+
+<style>
+  .doc-toc {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-4));
+    max-height: calc(100vh - var(--header-height) - var(--space-8));
+    overflow-y: auto;
+  }
+
+  .doc-toc__title {
+    margin: 0 0 var(--space-3);
+    color: var(--color-text-muted);
+    font-family: var(--font-family-mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+  }
+
+  .doc-toc ol {
+    display: grid;
+    gap: 2px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .doc-toc a {
+    display: block;
+    padding: 4px 8px;
+    border-left: 2px solid transparent;
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    line-height: 1.5;
+    text-decoration: none;
+  }
+
+  .doc-toc a:hover {
+    color: var(--color-text-primary);
+  }
+
+  .doc-toc a[aria-current='location'] {
+    border-left-color: var(--color-brand);
+    color: var(--color-brand);
+  }
+
+  .doc-toc li[data-level='3'] a {
+    padding-left: 20px;
+    font-size: 12px;
+  }
+</style>

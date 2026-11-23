@@ -409,6 +409,15 @@ export async function getProfile(): Promise<Profile> {
   return (await loadSiteData()).profile;
 }
 
+/** 把数据仓库内的相对路径转换为可访问的绝对地址；已是 http(s) 的原样返回。 */
+export function getDataUrl(path: string): string {
+  if (/^https?:\/\//.test(path)) {
+    return path;
+  }
+
+  return `${resolveDataBase()}${path.startsWith('/') ? path : `/${path}`}`;
+}
+
 export async function getWorkSlugs(): Promise<string[]> {
   return (await loadSiteData()).index.slugs;
 }

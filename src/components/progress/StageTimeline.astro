@@ -1,0 +1,251 @@
+---
+import { stageNameOf } from '../../lib/constants';
+import type { StageProgress } from '../../lib/contracts';
+import StatusBadge from '../ui/StatusBadge.astro';
+
+interface Props {
+  stages: readonly StageProgress[];
+  currentStage?: number;
+}
+
+const { stages, currentStage } = Astro.props;
+
+const dateText = (stage: StageProgress) => {
+  if (stage.status === 'planned') {
+    return '未开始';
+  }
+
+  const start = stage.startedAt ?? '—';
+  const end = stage.completedAt ?? (stage.status === 'in-progress' ? '至今' : '—');
+
+  return `${start} → ${end}`;
+};
+
+const isExternal = (url: string) => url.startsWith('https://');
+---
+
+<ol class="stage-timeline">
+  {
+    stages.map((stage) => (
+      <li
+        class="stage-timeline__item"
+        data-status={stage.status}
+        aria-current={stage.stage === currentStage ? 'step' : undefined}
+      >
+        <div class="stage-timeline__track" aria-hidden="true">
+          <span class="stage-timeline__node" />
+        </div>
+
+        <div class="stage-timeline__body">
+          <div class="stage-timeline__head">
+            <h3 class="stage-timeline__title">
+              <span class="stage-timeline__index">{stage.stage}</span>
+              {stageNameOf(stage.key)}
+            </h3>
+            <StatusBadge kind="stage" status={stage.status} />
+          </div>
+
+          <p class="stage-timeline__dates">{dateText(stage)}</p>
+
+          {stage.summary && <p class="stage-timeline__summary">{stage.summary}</p>}
+
+          {stage.changelog.length > 0 && (
+            <details
+              class="stage-timeline__changelog"
+              open={stage.stage === currentStage}
+            >
+              <summary>变更记录（{stage.changelog.length}）</summary>
+              <ul>
+                {stage.changelog.map((item) => (
+                  <li>
+                    <time datetime={item.date}>{item.date}</time>
+                    <span>{item.note}</span>
+                    {item.version && <span class="stage-timeline__version">{item.version}</span>}
+                  </li>
+                ))}
+              </ul>
+            </details>
+          )}
+
+          {stage.links.length > 0 && (
+            <ul class="stage-timeline__links">
+              {stage.links.map((link) => (
+                <li>
+                  <a
+                    href={link.url}
+                    target={isExternal(link.url) ? '_blank' : undefined}
+                    rel={isExternal(link.url) ? 'noopener noreferrer' : undefined}
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .stage-timeline {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .stage-timeline__item {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr);
+    gap: 0 var(--space-4);
+  }
+
+  .stage-timeline__track {
+    position: relative;
+    display: flex;
+    justify-content: center;
+  }
+
+  .stage-timeline__track::after {
+    content: '';
+    position: absolute;
+    top: 20px;
+    bottom: 0;
+    width: 2px;
+    background: var(--color-border);
+  }
+
+  .stage-timeline__item:last-child .stage-timeline__track::after {
+    display: none;
+  }
+
+  .stage-timeline__node {
+    position: relative;
+    z-index: 1;
+    width: 12px;
+    height: 12px;
+    margin-top: 6px;
+    border: 2px solid var(--color-border-strong);
+    border-radius: 50%;
+    background: var(--color-page);
+  }
+
+  .stage-timeline__item[data-status='completed'] .stage-timeline__node {
+    border-color: var(--color-success);
+    background: var(--color-success);
+  }
+
+  .stage-timeline__item[data-status='in-progress'] .stage-timeline__node {
+    border-color: var(--color-brand);
+    background: var(--color-surface);
+    box-shadow: 0 0 0 4px var(--color-brand-soft);
+  }
+
+  .stage-timeline__body {
+    padding-bottom: var(--space-8);
+  }
+
+  .stage-timeline__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-2);
+  }
+
+  .stage-timeline__title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    font-size: 18px;
+  }
+
+  .stage-timeline__index {
+    color: var(--color-text-muted);
+    font-family: var(--font-family-mono);
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .stage-timeline__dates {
+    margin: var(--space-1) 0 0;
+    color: var(--color-text-secondary);
+    font-family: var(--font-family-mono);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stage-timeline__summary {
+    margin: var(--space-2) 0 0;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+  }
+
+  .stage-timeline__changelog {
+    margin-top: var(--space-3);
+    border-left: 2px solid var(--color-border);
+    padding-left: var(--space-3);
+  }
+
+  .stage-timeline__changelog summary {
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+  }
+
+  .stage-timeline__changelog ul {
+    display: grid;
+    gap: var(--space-1);
+    margin: var(--space-2) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .stage-timeline__changelog li {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    color: var(--color-text-secondary);
+    font-size: 13px;
+  }
+
+  .stage-timeline__changelog time {
+    color: var(--color-text-muted);
+    font-family: var(--font-family-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stage-timeline__version {
+    padding: 0 6px;
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-family-mono);
+    font-size: 11px;
+  }
+
+  .stage-timeline__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin: var(--space-2) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .stage-timeline__links a {
+    font-size: 13px;
+  }
+
+  @media (max-width: 47.999rem) {
+    .stage-timeline__item {
+      grid-template-columns: 24px minmax(0, 1fr);
+      gap: 0 var(--space-3);
+    }
+
+    .stage-timeline__body {
+      padding-bottom: var(--space-6);
+    }
+  }
+</style>

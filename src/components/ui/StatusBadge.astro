@@ -1,0 +1,133 @@
+---
+import { PROJECT_STATUS_LABELS, STAGE_STATUS_LABELS } from '../../lib/constants';
+import type { ProjectStatus, StageStatus } from '../../lib/contracts';
+
+type Props =
+  | { kind: 'project'; status: ProjectStatus }
+  | { kind: 'stage'; status: StageStatus };
+
+const props = Astro.props;
+const label =
+  props.kind === 'project'
+    ? PROJECT_STATUS_LABELS[props.status]
+    : STAGE_STATUS_LABELS[props.status];
+const showCheck = props.kind === 'stage' && props.status === 'completed';
+---
+
+<span class="status-badge" data-kind={props.kind} data-status={props.status}>
+  {
+    showCheck ? (
+      <svg
+        class="status-badge__check"
+        viewBox="0 0 12 12"
+        width="12"
+        height="12"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m2 6 2.5 2.5L10 3.5" />
+      </svg>
+    ) : (
+      <span class="status-badge__dot" aria-hidden="true" />
+    )
+  }
+  <span class="status-badge__label">{label}</span>
+</span>
+
+<style>
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 8px;
+    border: var(--border-width) solid var(--color-border);
+    border-radius: 999px;
+    background: var(--color-surface);
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.5;
+    white-space: nowrap;
+  }
+
+  .status-badge__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+  }
+
+  .status-badge__check {
+    display: block;
+  }
+
+  /* 作品状态 */
+  .status-badge[data-kind='project'][data-status='released'] {
+    color: var(--color-success);
+  }
+
+  .status-badge[data-kind='project'][data-status='in-development'] {
+    color: var(--color-brand);
+  }
+
+  .status-badge[data-kind='project'][data-status='in-development'] .status-badge__dot {
+    animation: status-pulse 1.6s ease-in-out infinite;
+  }
+
+  .status-badge[data-kind='project'][data-status='planned'] {
+    color: var(--color-text-secondary);
+  }
+
+  .status-badge[data-kind='project'][data-status='planned'] .status-badge__dot {
+    background: transparent;
+    border: var(--border-width) solid currentColor;
+  }
+
+  .status-badge[data-kind='project'][data-status='archived'] {
+    color: var(--color-text-muted);
+  }
+
+  .status-badge[data-kind='project'][data-status='archived'] .status-badge__dot {
+    border-radius: 2px;
+  }
+
+  /* 阶段状态 */
+  .status-badge[data-kind='stage'][data-status='completed'] {
+    color: var(--color-success);
+  }
+
+  .status-badge[data-kind='stage'][data-status='in-progress'] {
+    color: var(--color-brand);
+  }
+
+  .status-badge[data-kind='stage'][data-status='in-progress'] .status-badge__dot {
+    background: transparent;
+    border: 1.5px solid currentColor;
+    border-right-color: transparent;
+    transform: rotate(-45deg);
+  }
+
+  .status-badge[data-kind='stage'][data-status='planned'] {
+    color: var(--color-text-muted);
+  }
+
+  .status-badge[data-kind='stage'][data-status='planned'] .status-badge__dot {
+    background: transparent;
+    border: var(--border-width) solid currentColor;
+  }
+
+  @keyframes status-pulse {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 var(--color-brand-soft);
+    }
+
+    50% {
+      box-shadow: 0 0 0 4px transparent;
+    }
+  }
+</style>

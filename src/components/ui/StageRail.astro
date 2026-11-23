@@ -1,0 +1,75 @@
+---
+import { STAGE_STATUS_LABELS, stageNameOf } from '../../lib/constants';
+import type { StageProgress } from '../../lib/contracts';
+
+interface Props {
+  stages: readonly StageProgress[];
+  currentStage?: number;
+}
+
+const { stages, currentStage } = Astro.props;
+---
+
+<div class="stage-rail" role="list" aria-label="八阶段进度">
+  {
+    stages.map((stage) => (
+      <div
+        class="stage-rail__item"
+        role="listitem"
+        data-status={stage.status}
+        aria-current={stage.stage === currentStage ? 'step' : undefined}
+        aria-label={`阶段 ${stage.stage} ${stageNameOf(stage.key)} ${STAGE_STATUS_LABELS[stage.status]}`}
+      >
+        <span class="stage-rail__bar" aria-hidden="true" />
+        <span class="stage-rail__number" aria-hidden="true">
+          {stage.stage}
+        </span>
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  .stage-rail {
+    display: grid;
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 4px;
+    width: 100%;
+  }
+
+  .stage-rail__item {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+  }
+
+  .stage-rail__bar {
+    display: block;
+    height: 6px;
+    border-radius: 2px;
+    background: var(--color-border);
+  }
+
+  .stage-rail__item[data-status='completed'] .stage-rail__bar {
+    background: var(--color-success);
+  }
+
+  .stage-rail__item[data-status='in-progress'] .stage-rail__bar {
+    background: var(--color-brand);
+    box-shadow: inset -1px 0 0 rgb(255 255 255 / 60%);
+  }
+
+  .stage-rail__number {
+    color: var(--color-text-muted);
+    font-family: var(--font-family-mono);
+    font-size: 11px;
+    line-height: 1;
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stage-rail__item[aria-current='step'] .stage-rail__number {
+    color: var(--color-brand);
+    font-weight: 600;
+  }
+</style>

@@ -1,0 +1,43 @@
+---
+import Button from './Button.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  linkHref?: string;
+  linkLabel?: string;
+}
+
+const { title, description, linkHref, linkLabel = '返回首页' } = Astro.props;
+---
+
+<section class="empty-state">
+  <h2 class="empty-state__title">{title}</h2>
+  {description && <p class="empty-state__description">{description}</p>}
+  {linkHref && <Button href={linkHref} variant="secondary">{linkLabel}</Button>}
+</section>
+
+<style>
+  .empty-state {
+    display: grid;
+    justify-items: center;
+    gap: var(--space-3);
+    padding: var(--space-12) var(--space-6);
+    border: var(--border-width) dashed var(--color-border-strong);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    text-align: center;
+  }
+
+  .empty-state__title {
+    margin: 0;
+    font-size: 20px;
+  }
+
+  .empty-state__description {
+    max-width: 46ch;
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+  }
+</style>

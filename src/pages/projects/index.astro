@@ -1,0 +1,107 @@
+---
+import PageLayout from '../../layouts/PageLayout.astro';
+import { getDataUrl, loadSiteData } from '../../lib/data-source';
+import { calcPercent, deriveJourney } from '../../lib/derive';
+import type { Work } from '../../lib/contracts';
+import PageHeader from '../../components/ui/PageHeader.astro';
+import ProjectCard from '../../components/project/ProjectCard.astro';
+import EmptyState from '../../components/ui/EmptyState.astro';
+
+const data = await loadSiteData();
+const works = data.index.slugs.map((slug) => data.works[slug]);
+const documentsBySlug = Object.fromEntries(
+  Object.entries(data.documents).map(([slug, documents]) => [
+    slug,
+    documents.map((document) => document.meta),
+  ]),
+);
+
+const cardPropsOf = (work: Work) => {
+  const project = data.progress.projects[work.slug];
+  const journey = deriveJourney(work, project, documentsBySlug[work.slug] ?? []);
+
+  return {
+    work,
+    href: `/projects/${work.slug}/`,
+    coverUrl: getDataUrl(work.cover),
+    percent: calcPercent(project),
+    currentStageName: journey.currentStageName,
+    recentUpdate: journey.recentUpdate,
+  };
+};
+
+const title = '作品 — PLV Studio';
+const description = 'PLV Studio 的公开作品，按记录顺序展示状态、进度与最近更新。';
+---
+
+<PageLayout title={title} description={description}>
+  <div class="container projects-page">
+    <PageHeader
+      title="作品"
+      description="这里记录作品从需求到交付的完整过程。"
+      meta={`共 ${works.length} 个作品`}
+    />
+
+    {
+      works.length > 0 ? (
+        <>
+          <div class="projects-grid">
+            {works.map((work) => (
+              <ProjectCard {...cardPropsOf(work)} />
+            ))}
+          </div>
+
+          <p class="projects-note">
+            每个作品都按八个阶段记录过程；进入详情页可查看设计文档、进度与验收信息。
+          </p>
+        </>
+      ) : (
+        <EmptyState
+          title="还没有公开作品"
+          description="新增作品只需在数据仓库的 works 目录登记，构建后会自动出现在这里。"
+          linkHref="/"
+          linkLabel="返回首页"
+        />
+      )
+    }
+  </div>
+</PageLayout>
+
+<style>
+  .projects-page {
+    padding-block: var(--space-10) var(--space-12);
+  }
+
+  .projects-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-6);
+    margin-top: var(--space-8);
+  }
+
+  .projects-note {
+    margin: var(--space-10) 0 0;
+    padding-top: var(--space-4);
+    border-top: var(--border-width) solid var(--color-border);
+    color: var(--color-text-secondary);
+    font-size: 14px;
+  }
+
+  @media (max-width: 63.999rem) {
+    .projects-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 47.999rem) {
+    .projects-page {
+      padding-block: var(--space-8) var(--space-10);
+    }
+
+    .projects-grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-4);
+      margin-top: var(--space-6);
+    }
+  }
+</style>

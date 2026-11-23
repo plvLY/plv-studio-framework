@@ -1,0 +1,270 @@
+---
+import DocLayout from '../../../../layouts/DocLayout.astro';
+import {
+  getDocument,
+  getDocumentIndex,
+  getWork,
+  getWorkSlugs,
+} from '../../../../lib/data-source';
+import { renderMarkdown } from '../../../../lib/markdown';
+import { STAGES } from '../../../../lib/constants';
+import DocToc from '../../../../components/docs/DocToc.astro';
+import DocPager from '../../../../components/docs/DocPager.astro';
+import MarkdownBody from '../../../../components/docs/MarkdownBody.astro';
+
+export async function getStaticPaths() {
+  const slugs = await getWorkSlugs();
+  const paths: Array<{ params: { slug: string; docId: string } }> = [];
+
+  for (const slug of slugs) {
+    const documents = await getDocumentIndex(slug);
+
+    for (const document of documents) {
+      if (document.visibility === 'public') {
+        paths.push({ params: { slug, docId: document.id } });
+      }
+    }
+  }
+
+  return paths;
+}
+
+const { slug, docId } = Astro.params;
+
+if (!slug || !docId) {
+  throw new Error('缺少 slug 或 docId');
+}
+
+const [document, documents, work] = await Promise.all([
+  getDocument(slug, docId),
+  getDocumentIndex(slug),
+  getWork(slug),
+]);
+
+const { html, headings } = await renderMarkdown(document.body, { ...document.frontmatter }, slug);
+
+const tocItems = headings
+  .filter((heading) => heading.depth === 2 || heading.depth === 3)
+  .map((heading) => ({
+    id: heading.slug,
+    text: heading.text,
+    level: heading.depth,
+  }));
+
+const currentIndex = documents.findIndex((item) => item.id === document.meta.id);
+const prevDoc = currentIndex > 0 ? documents[currentIndex - 1] : undefined;
+const nextDoc =
+  currentIndex !== -1 && currentIndex < documents.length - 1
+    ? documents[currentIndex + 1]
+    : undefined;
+
+const stage = STAGES.find((item) => item.stage === document.frontmatter.stage);
+const stageLabel = stage
+  ? `阶段 ${stage.stage} · ${stage.name}`
+  : `阶段 ${document.frontmatter.stage}`;
+
+const title = `${document.frontmatter.title} — ${work.title}`;
+const description = document.frontmatter.summary ?? `${work.title} 设计文档`;
+---
+
+<DocLayout title={title} description={description}>
+  <header class="doc-header">
+    <nav class="doc-header__crumbs" aria-label="面包屑">
+      <a href="/">首页</a>
+      <span aria-hidden="true">/</span>
+      <a href="/projects/">作品</a>
+      <span aria-hidden="true">/</span>
+      <a href={`/projects/${slug}/`}>{work.title}</a>
+      <span aria-hidden="true">/</span>
+      <span aria-current="page">{document.frontmatter.title}</span>
+    </nav>
+
+    <div class="doc-header__meta">
+      <span class="doc-header__stage">阶段 {document.frontmatter.stage}</span>
+      <time datetime={document.frontmatter.date}>{document.frontmatter.date}</time>
+    </div>
+
+    <h1 class="doc-header__title">{document.frontmatter.title}</h1>
+    {document.frontmatter.summary && (
+      <p class="doc-header__summary">{document.frontmatter.summary}</p>
+    )}
+  </header>
+
+  <MarkdownBody html={html} />
+
+  <DocPager
+    prev={prevDoc ? { href: `/projects/${slug}/docs/${prevDoc.id}/`, title: prevDoc.title } : undefined}
+    next={nextDoc ? { href: `/projects/${slug}/docs/${nextDoc.id}/`, title: nextDoc.title } : undefined}
+  />
+
+  <DocToc slot="toc" items={tocItems} scrollspy />
+
+  <aside slot="aside" class="doc-aside">
+    <p class="doc-aside__label">所属作品</p>
+    <a class="doc-aside__work" href={`/projects/${slug}/`}>{work.title}</a>
+    <p class="doc-aside__meta">{stageLabel}</p>
+    <p class="doc-aside__meta">
+      日期 <time datetime={document.frontmatter.date}>{document.frontmatter.date}</time>
+    </p>
+
+    <p class="doc-aside__label doc-aside__label--spaced">同作品文档</p>
+    <ol class="doc-aside__list">
+      {
+        documents.map((item) => (
+          <li>
+            <a
+              href={`/projects/${slug}/docs/${item.id}/`}
+              aria-current={item.id === document.meta.id ? 'page' : undefined}
+            >
+              {item.order}. {item.title}
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </aside>
+</DocLayout>
+
+<style>
+  .doc-header {
+    margin-bottom: var(--space-8);
+    padding-bottom: var(--space-6);
+    border-bottom: var(--border-width) solid var(--color-border);
+  }
+
+  .doc-header__crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin-bottom: var(--space-4);
+    color: var(--color-text-muted);
+    font-size: 13px;
+  }
+
+  .doc-header__crumbs a {
+    color: var(--color-text-secondary);
+    text-decoration: none;
+  }
+
+  .doc-header__crumbs a:hover {
+    color: var(--color-brand);
+    text-decoration: underline;
+  }
+
+  .doc-header__meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4);
+    margin-bottom: var(--space-3);
+    color: var(--color-text-muted);
+    font-family: var(--font-family-mono);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .doc-header__stage {
+    padding: 2px 8px;
+    border: var(--border-width) solid var(--color-brand);
+    border-radius: var(--radius-sm);
+    color: var(--color-brand);
+  }
+
+  .doc-header__title {
+    margin: 0;
+    font-size: 32px;
+    line-height: 1.3;
+  }
+
+  .doc-header__summary {
+    margin: var(--space-3) 0 0;
+    color: var(--color-text-secondary);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .doc-aside {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-4));
+    max-height: calc(100vh - var(--header-height) - var(--space-8));
+    overflow-y: auto;
+    padding: var(--space-4);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+  }
+
+  .doc-aside__label {
+    margin: 0 0 var(--space-2);
+    color: var(--color-text-muted);
+    font-family: var(--font-family-mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+  }
+
+  .doc-aside__label--spaced {
+    margin-top: var(--space-6);
+  }
+
+  .doc-aside__work {
+    display: block;
+    color: var(--color-brand);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .doc-aside__work:hover {
+    text-decoration: underline;
+  }
+
+  .doc-aside__meta {
+    margin: var(--space-1) 0 0;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .doc-aside__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .doc-aside__list li + li {
+    margin-top: 2px;
+  }
+
+  .doc-aside__list a {
+    display: block;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    line-height: 1.5;
+    text-decoration: none;
+  }
+
+  .doc-aside__list a:hover {
+    background: var(--color-page);
+    color: var(--color-text-primary);
+  }
+
+  .doc-aside__list a[aria-current='page'] {
+    background: var(--color-brand-soft);
+    color: var(--color-brand);
+    font-weight: 600;
+  }
+
+  @media (max-width: 63.999rem) {
+    .doc-aside {
+      position: static;
+      max-height: none;
+      overflow: visible;
+    }
+
+    .doc-header__title {
+      font-size: 26px;
+    }
+  }
+</style>

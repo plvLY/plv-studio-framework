@@ -1,0 +1,317 @@
+---
+interface Props {
+  html: string;
+}
+
+const { html } = Astro.props;
+---
+
+<div class="markdown-body" data-markdown-body>
+  <div class="markdown-body__content" set:html={html} />
+  <p class="markdown-body__status" aria-live="polite" data-copy-status></p>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-markdown-body]').forEach((body) => {
+    const status = body.querySelector<HTMLElement>('[data-copy-status]');
+
+    const announce = (message: string) => {
+      if (!status) {
+        return;
+      }
+
+      status.textContent = message;
+
+      window.setTimeout(() => {
+        status.textContent = '';
+      }, 2000);
+    };
+
+    body.querySelectorAll<HTMLPreElement>('pre').forEach((pre) => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'code-block';
+      pre.parentNode?.insertBefore(wrapper, pre);
+      wrapper.appendChild(pre);
+
+      const bar = document.createElement('div');
+      bar.className = 'code-block__bar';
+
+      const language = document.createElement('span');
+      language.className = 'code-block__language';
+      language.textContent = pre.dataset.language ?? 'code';
+
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'code-block__copy';
+      button.textContent = '复制';
+      button.setAttribute('aria-label', '复制代码');
+
+      bar.append(language, button);
+      wrapper.insertBefore(bar, pre);
+
+      button.addEventListener('click', async () => {
+        const code = pre.querySelector('code')?.textContent ?? '';
+
+        try {
+          await navigator.clipboard.writeText(code);
+          button.textContent = '已复制';
+          announce('代码已复制');
+        } catch {
+          button.textContent = '复制失败';
+          announce('复制失败，请手动选择代码');
+        }
+
+        window.setTimeout(() => {
+          button.textContent = '复制';
+        }, 2000);
+      });
+    });
+
+    body.querySelectorAll<HTMLTableElement>('table').forEach((table) => {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'table-wrap';
+      table.parentNode?.insertBefore(wrapper, table);
+      wrapper.appendChild(table);
+    });
+
+    body.querySelectorAll<HTMLAnchorElement>('a[href^="http"]').forEach((link) => {
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+    });
+  });
+</script>
+
+<style is:global>
+  .markdown-body__content {
+    color: var(--color-text-primary);
+    font-size: 16px;
+    line-height: 1.75;
+  }
+
+  .markdown-body__content h1,
+  .markdown-body__content h2,
+  .markdown-body__content h3,
+  .markdown-body__content h4 {
+    line-height: 1.3;
+    scroll-margin-top: calc(var(--header-height) + var(--space-4));
+  }
+
+  .markdown-body__content h1 {
+    margin: 0 0 var(--space-4);
+    font-size: 28px;
+  }
+
+  .markdown-body__content h2 {
+    margin: var(--space-10) 0 var(--space-3);
+    padding-bottom: var(--space-2);
+    border-bottom: var(--border-width) solid var(--color-border);
+    font-size: 24px;
+  }
+
+  .markdown-body__content h3 {
+    margin: var(--space-8) 0 var(--space-2);
+    font-size: 20px;
+  }
+
+  .markdown-body__content h4 {
+    margin: var(--space-6) 0 var(--space-2);
+    font-size: 18px;
+  }
+
+  .markdown-body__content > :first-child {
+    margin-top: 0;
+  }
+
+  .markdown-body__content p {
+    margin: 0;
+  }
+
+  .markdown-body__content p + p {
+    margin-top: var(--space-4);
+  }
+
+  .markdown-body__content a {
+    color: var(--color-brand);
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 2px;
+  }
+
+  .markdown-body__content a:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  .markdown-body__content ul,
+  .markdown-body__content ol {
+    margin: var(--space-3) 0;
+    padding-left: var(--space-6);
+  }
+
+  .markdown-body__content li + li {
+    margin-top: var(--space-1);
+  }
+
+  .markdown-body__content li > ul,
+  .markdown-body__content li > ol {
+    margin: var(--space-1) 0;
+  }
+
+  .markdown-body__content blockquote {
+    margin: var(--space-4) 0;
+    padding: var(--space-3) var(--space-4);
+    border-left: 3px solid var(--color-border-strong);
+    background: var(--color-page);
+    color: var(--color-text-secondary);
+  }
+
+  .markdown-body__content blockquote p {
+    color: inherit;
+  }
+
+  .markdown-body__content hr {
+    height: var(--border-width);
+    margin: var(--space-8) 0;
+    border: 0;
+    background: var(--color-border);
+  }
+
+  .markdown-body__content :not(pre) > code {
+    padding: 2px 6px;
+    border-radius: var(--radius-sm);
+    background: var(--color-page);
+    color: var(--color-brand);
+    font-family: var(--font-family-mono);
+    font-size: 0.88em;
+  }
+
+  .markdown-body__content img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: var(--space-5) auto;
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-page);
+  }
+
+  .markdown-body__content svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: var(--space-5) auto;
+    padding: var(--space-4);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: #fff;
+  }
+
+  .markdown-body__content pre {
+    margin: 0;
+    padding: var(--space-4) var(--space-5);
+    overflow-x: auto;
+    background: #0f172a;
+    color: #e5e7eb;
+    font-family: var(--font-family-mono);
+    font-size: 13px;
+    line-height: 1.65;
+    scrollbar-width: thin;
+  }
+
+  .markdown-body__content pre code {
+    display: block;
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    font-size: inherit;
+    line-height: inherit;
+  }
+
+  /* 动态生成的代码块容器 */
+  .markdown-body__content .code-block {
+    margin: var(--space-5) 0;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    background: #0f172a;
+  }
+
+  .markdown-body__content .code-block__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: 6px var(--space-3);
+    background: rgb(255 255 255 / 6%);
+    color: #cbd5e1;
+    font-family: var(--font-family-mono);
+    font-size: 12px;
+  }
+
+  .markdown-body__content .code-block__copy {
+    padding: 2px 8px;
+    border: 1px solid rgb(255 255 255 / 20%);
+    border-radius: var(--radius-sm);
+    background: rgb(255 255 255 / 8%);
+    color: #e5e7eb;
+    font-family: inherit;
+    font-size: 11px;
+    cursor: pointer;
+  }
+
+  .markdown-body__content .code-block__copy:hover {
+    background: rgb(255 255 255 / 16%);
+  }
+
+  /* 表格 */
+  .markdown-body__content .table-wrap {
+    margin: var(--space-5) 0;
+    overflow-x: auto;
+    scrollbar-width: thin;
+  }
+
+  .markdown-body__content table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  .markdown-body__content thead {
+    background: var(--color-brand-soft);
+  }
+
+  .markdown-body__content th,
+  .markdown-body__content td {
+    padding: 10px 14px;
+    border: var(--border-width) solid var(--color-border);
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  .markdown-body__content th {
+    color: var(--color-text-primary);
+    font-weight: 600;
+  }
+
+  .markdown-body__content td {
+    color: var(--color-text-secondary);
+  }
+
+  .markdown-body__content tbody tr:nth-child(even) {
+    background: var(--color-page);
+  }
+
+  /* 暗色代码块 */
+  [data-theme='dark'] .markdown-body__content pre,
+  [data-theme='dark'] .markdown-body__content .code-block {
+    background: #020617;
+  }
+
+  /* 复制反馈（视觉隐藏，仅播报） */
+  .markdown-body__status {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+</style>

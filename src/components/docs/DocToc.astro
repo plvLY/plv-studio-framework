@@ -11,12 +11,19 @@ interface Props {
   title?: string;
   /** 详情页用于滚动高亮的本页目录。 */
   page?: boolean;
+  /** 文档页启用“随滚动高亮当前章节”。 */
+  scrollspy?: boolean;
 }
 
-const { items, activeId, title = '目录', page = false } = Astro.props;
+const { items, activeId, title = '目录', page = false, scrollspy = false } = Astro.props;
 ---
 
-<nav class="doc-toc" aria-label={title} data-page-toc={page ? '' : undefined}>
+<nav
+  class="doc-toc"
+  aria-label={title}
+  data-page-toc={page ? '' : undefined}
+  data-doc-toc-scrollspy={scrollspy ? '' : undefined}
+>
   <p class="doc-toc__title">{title}</p>
   <ol>
     {
@@ -33,6 +40,76 @@ const { items, activeId, title = '目录', page = false } = Astro.props;
     }
   </ol>
 </nav>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-doc-toc-scrollspy]').forEach((toc) => {
+    const links = Array.from(toc.querySelectorAll<HTMLAnchorElement>('a[href^="#"]'));
+    const targets = links.map((link) => {
+      const id = link.getAttribute('href')?.slice(1);
+      return id ? document.getElementById(id) : null;
+    });
+
+    let activeIndex = -1;
+    let lockUntil = 0;
+
+    const setActive = (nextIndex: number) => {
+      if (nextIndex === activeIndex) {
+        return;
+      }
+
+      activeIndex = nextIndex;
+      links.forEach((link, index) => {
+        if (index === nextIndex) {
+          link.setAttribute('aria-current', 'location');
+        } else {
+          link.removeAttribute('aria-current');
+        }
+      });
+    };
+
+    const update = () => {
+      // 点击目录后，锚点跳转触发的滚动不应把高亮改回其它章节。
+      if (Date.now() < lockUntil) {
+        return;
+      }
+
+      const offset = 160;
+      let nextIndex = 0;
+
+      targets.forEach((target, index) => {
+        if (target && target.getBoundingClientRect().top <= offset) {
+          nextIndex = index;
+        }
+      });
+
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) {
+        nextIndex = links.length - 1;
+      }
+
+      setActive(nextIndex);
+    };
+
+    links.forEach((link, index) => {
+      link.addEventListener('click', () => {
+        setActive(index);
+        lockUntil = Date.now() + 900;
+      });
+    });
+
+    window.addEventListener('hashchange', () => {
+      const index = links.findIndex((link) => link.hash === window.location.hash);
+
+      if (index >= 0) {
+        setActive(index);
+        lockUntil = Date.now() + 900;
+      }
+    });
+
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+  });
+</script>
 
 <style>
   .doc-toc {

@@ -11,17 +11,134 @@ const { title, description } = Astro.props;
 
 <BaseLayout title={title} description={description}>
   <div class="container doc-layout">
-    <aside class="doc-layout__toc" aria-label="文档目录">
+    <button
+      type="button"
+      class="doc-layout__toggle"
+      aria-expanded="false"
+      aria-controls="doc-toc-drawer"
+      data-doc-toc-toggle
+    >
+      目录
+    </button>
+
+    <div class="doc-layout__backdrop" data-doc-toc-backdrop></div>
+
+    <aside
+      class="doc-layout__toc"
+      id="doc-toc-drawer"
+      aria-label="文档目录"
+      data-doc-toc
+    >
       <slot name="toc" />
     </aside>
+
     <div class="doc-layout__content">
       <slot />
     </div>
+
     <aside class="doc-layout__aside" aria-label="文档信息">
       <slot name="aside" />
     </aside>
   </div>
 </BaseLayout>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('[data-doc-toc-toggle]');
+  const drawer = document.querySelector<HTMLElement>('[data-doc-toc]');
+  const backdrop = document.querySelector<HTMLElement>('[data-doc-toc-backdrop]');
+
+  if (toggle && drawer) {
+    let lastFocused: HTMLElement | null = null;
+
+    const getFocusable = () =>
+      Array.from(
+        drawer.querySelectorAll<HTMLElement>(
+          'a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])',
+        ),
+      );
+
+    const open = () => {
+      lastFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+      drawer.classList.add('is-open');
+      backdrop?.classList.add('is-open');
+      toggle.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+
+      const first = getFocusable()[0];
+      first?.focus();
+    };
+
+    const close = (returnFocus: boolean) => {
+      if (!drawer.classList.contains('is-open')) {
+        return;
+      }
+
+      drawer.classList.remove('is-open');
+      backdrop?.classList.remove('is-open');
+      toggle.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+
+      if (returnFocus) {
+        (lastFocused ?? toggle).focus();
+      }
+    };
+
+    toggle.addEventListener('click', () => {
+      if (drawer.classList.contains('is-open')) {
+        close(true);
+      } else {
+        open();
+      }
+    });
+
+    backdrop?.addEventListener('click', () => close(true));
+
+    drawer.querySelectorAll('a[href^="#"]').forEach((link) => {
+      link.addEventListener('click', () => close(false));
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (!drawer.classList.contains('is-open')) {
+        return;
+      }
+
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        close(true);
+        return;
+      }
+
+      if (event.key !== 'Tab') {
+        return;
+      }
+
+      const items = getFocusable();
+
+      if (items.length === 0) {
+        return;
+      }
+
+      const first = items[0];
+      const last = items[items.length - 1];
+
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+
+    const desktop = window.matchMedia('(min-width: 64rem)');
+
+    desktop.addEventListener('change', (event) => {
+      if (event.matches) {
+        close(false);
+      }
+    });
+  }
+</script>
 
 <style>
   .doc-layout {
@@ -29,20 +146,103 @@ const { title, description } = Astro.props;
     grid-template-columns: 220px minmax(0, 1fr) 200px;
     gap: var(--space-8);
     padding-block: var(--space-10);
+    position: relative;
   }
 
   .doc-layout__content {
     min-width: 0;
   }
 
+  .doc-layout__toggle,
+  .doc-layout__backdrop {
+    display: none;
+  }
+
+  .doc-layout__aside {
+    min-width: 0;
+  }
+
   @media (max-width: 63.999rem) {
     .doc-layout {
       grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-4);
+      padding-block: var(--space-6);
     }
 
-    .doc-layout__toc,
+    .doc-layout__toggle {
+      position: sticky;
+      top: calc(var(--header-height) + var(--space-2));
+      z-index: 10;
+      display: inline-flex;
+      justify-self: start;
+      align-items: center;
+      gap: var(--space-2);
+      padding: 6px 14px;
+      border: var(--border-width) solid var(--color-border-strong);
+      border-radius: var(--radius-md);
+      background: var(--color-surface);
+      color: var(--color-text-primary);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .doc-layout__toggle:hover {
+      border-color: var(--color-brand);
+    }
+
+    .doc-layout__backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 69;
+      display: block;
+      background: rgb(15 23 42 / 45%);
+      opacity: 0;
+      visibility: hidden;
+      transition:
+        opacity var(--transition-fast),
+        visibility var(--transition-fast);
+    }
+
+    .doc-layout__backdrop.is-open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .doc-layout__toc {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 70;
+      width: min(280px, 80vw);
+      padding: var(--space-6) var(--space-4);
+      overflow-y: auto;
+      background: var(--color-surface);
+      box-shadow: var(--shadow-md);
+      transform: translateX(-100%);
+      visibility: hidden;
+      transition:
+        transform var(--transition-fast),
+        visibility var(--transition-fast);
+    }
+
+    .doc-layout__toc.is-open {
+      transform: translateX(0);
+      visibility: visible;
+    }
+
+    .doc-layout__toc :global(.doc-toc) {
+      position: static;
+      max-height: none;
+      overflow: visible;
+    }
+
     .doc-layout__aside {
-      display: none;
+      margin-top: var(--space-6);
+      padding-top: var(--space-4);
+      border-top: var(--border-width) solid var(--color-border);
     }
   }
 </style>

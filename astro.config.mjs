@@ -3,7 +3,7 @@ import { defineConfig } from 'astro/config';
 import tailwindcss from '@tailwindcss/vite';
 
 /** 站点绝对地址，用于 canonical / sitemap 等场景；生产由 SITE_URL 注入。 */
-const site = process.env.SITE_URL ?? 'https://plv.pages.dev';
+const site = process.env.SITE_URL ?? 'https://plvstudio.pages.dev';
 
 /**
  * 从 DATA_BASE 解析数据站点主机，供构建期远程图片优化使用。

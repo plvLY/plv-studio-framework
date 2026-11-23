@@ -27,21 +27,27 @@ const pageDescription = description ?? profile.seo.defaultDescription;
     <meta name="description" content={pageDescription} />
     <ThemeScript />
     <slot name="head" />
-    <!-- 接入PLVMonitor：仅生产构建注入（本地开发流量不计入统计） -->
+    <!-- 接入 PLVMonitor：仅生产构建注入，本地开发流量不计入统计 -->
     {import.meta.env.PROD && (
-      <script
-        is:inline
-        src="https://plv-monitor.netlify.app/tracker/plv-tracker.iife.js"
-      ></script>
-      <script>
-        (() => {
-          const tracker = PLVSiteMonitor.init({
-            siteId: "ac49899f-dddb-4451-bd11-f501d57a2ebb",
-            endpoint: "https://plv-monitor.netlify.app/api/collect",
-          })
-          tracker.startPageTracking()
-        })()
-      </script>
+      <>
+        <script
+          is:inline
+          defer
+          src="https://plv-monitor.netlify.app/tracker/plv-tracker.iife.js"
+        ></script>
+        <script is:inline>
+          window.addEventListener('DOMContentLoaded', () => {
+            if (!window.PLVSiteMonitor) return;
+
+            const tracker = window.PLVSiteMonitor.init({
+              siteId: 'ac49899f-dddb-4451-bd11-f501d57a2ebb',
+              endpoint: 'https://plv-monitor.netlify.app/api/collect',
+            });
+
+            tracker.startPageTracking();
+          });
+        </script>
+      </>
     )}
   </head>
   <body>

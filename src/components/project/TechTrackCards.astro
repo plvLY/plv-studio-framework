@@ -1,0 +1,76 @@
+---
+import type { SkillTab } from '../../lib/contracts';
+import TechBadge from '../ui/TechBadge.astro';
+
+interface Props {
+  tracks: readonly SkillTab[];
+}
+
+const { tracks } = Astro.props;
+---
+
+<div class="tech-tracks">
+  {
+    tracks.map((track) => (
+      <article class="tech-tracks__card">
+        <h3 class="tech-tracks__title">{track.label}</h3>
+        {track.description && <p class="tech-tracks__description">{track.description}</p>}
+        <ul class="tech-tracks__tags" aria-label={`${track.label}代表能力`}>
+          {track.items.slice(0, 3).map((item) => (
+            <li>
+              <TechBadge label={item.name} />
+            </li>
+          ))}
+        </ul>
+      </article>
+    ))
+  }
+</div>
+
+<style>
+  .tech-tracks {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+
+  .tech-tracks__card {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-5);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+  }
+
+  .tech-tracks__title {
+    margin: 0;
+    font-size: 18px;
+  }
+
+  .tech-tracks__description {
+    display: -webkit-box;
+    overflow: hidden;
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    line-height: 1.6;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .tech-tracks__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: var(--space-1) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (max-width: 47.999rem) {
+    .tech-tracks {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

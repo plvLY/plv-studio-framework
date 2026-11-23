@@ -1,0 +1,227 @@
+---
+import PageLayout from '../layouts/PageLayout.astro';
+import { loadSiteData } from '../lib/data-source';
+import PageHeader from '../components/ui/PageHeader.astro';
+import SectionHeading from '../components/ui/SectionHeading.astro';
+import TechTrackCards from '../components/project/TechTrackCards.astro';
+import CapabilityTabs from '../components/project/CapabilityTabs.astro';
+import AboutProcess from '../components/project/AboutProcess.astro';
+import SocialLinks from '../components/project/SocialLinks.astro';
+
+const data = await loadSiteData();
+const profile = data.profile;
+
+const tabs = data.skills?.tabs ?? [];
+const tracks = tabs.slice(0, 3);
+const positioning = profile.brand.positioning.split('（')[0].trim();
+
+const title = `关于 — ${profile.brand.studioName}`;
+const description = `${profile.author.name} · ${profile.author.title}，以及 ${profile.brand.studioName} 的工作方式。`;
+---
+
+<PageLayout title={title} description={description}>
+  <div class="container about-page">
+    <PageHeader
+      title="关于"
+      description="独立开发者与工作室的工作方式。"
+      meta={profile.brand.studioName}
+    />
+
+    <section class="about-section">
+      <SectionHeading title="个人简介" />
+      <div class="profile-card">
+        <div class="profile-card__main">
+          <h3 class="profile-card__name">{profile.author.name}</h3>
+          <p class="profile-card__role">{profile.author.title}</p>
+          <p class="profile-card__bio">{profile.author.bio}</p>
+        </div>
+
+        <ul class="profile-card__meta">
+          <li>
+            <span>所在地</span>
+            {profile.author.location}
+          </li>
+          <li>
+            <span>邮箱</span>
+            <a href={`mailto:${profile.author.email}`}>{profile.author.email}</a>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="about-section">
+      <SectionHeading title="工作室" />
+      <div class="studio-card">
+        <img class="studio-card__logo" src="/logo.png" alt="" width="64" height="64" />
+        <div class="studio-card__text">
+          <h3 class="studio-card__name">{profile.brand.studioName}</h3>
+          <p class="studio-card__positioning">{positioning}</p>
+          <p class="studio-card__description">{profile.home.heroSubtitle}</p>
+        </div>
+      </div>
+    </section>
+
+    {
+      tracks.length > 0 && (
+        <section class="about-section">
+          <SectionHeading
+            title="技术主线"
+            description="三条主线，都能在站内找到对应的作品、文档或记录。"
+          />
+          <TechTrackCards tracks={tracks} />
+        </section>
+      )
+    }
+
+    {
+      tabs.length > 0 && (
+        <section class="about-section" id="capabilities">
+          <SectionHeading
+            title="能力与证据"
+            description="能力通过真实项目、文档与代码证明，点开任一方向查看证据。"
+          />
+          <CapabilityTabs tabs={tabs} />
+        </section>
+      )
+    }
+
+    <section class="about-section" id="process">
+      <SectionHeading
+        title="八阶段工作方式"
+        description="从产品规划到运行迭代，每个阶段都想清楚目标与要交付什么。"
+      />
+      <AboutProcess />
+    </section>
+
+    {
+      profile.social.length > 0 && (
+        <section class="about-section" id="contact">
+          <SectionHeading title="公开入口" description="更完整的资料与联系方式。" />
+          <SocialLinks links={profile.social} />
+        </section>
+      )
+    }
+  </div>
+</PageLayout>
+
+<style>
+  .about-page {
+    padding-block: var(--space-10) var(--space-12);
+  }
+
+  .about-section {
+    margin-top: var(--space-16);
+    scroll-margin-top: calc(var(--header-height) + var(--space-4));
+  }
+
+  .profile-card {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 240px;
+    gap: var(--space-8);
+    padding: var(--space-6);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+  }
+
+  .profile-card__name {
+    margin: 0;
+    font-size: 24px;
+  }
+
+  .profile-card__role {
+    margin: var(--space-1) 0 0;
+    color: var(--color-brand);
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .profile-card__bio {
+    max-width: 42em;
+    margin: var(--space-3) 0 0;
+    color: var(--color-text-secondary);
+    font-size: 16px;
+    line-height: 1.75;
+  }
+
+  .profile-card__meta {
+    display: grid;
+    align-content: start;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    color: var(--color-text-primary);
+    font-size: 14px;
+  }
+
+  .profile-card__meta li {
+    display: grid;
+    gap: 2px;
+  }
+
+  .profile-card__meta span {
+    color: var(--color-text-muted);
+    font-size: 12px;
+  }
+
+  .profile-card__meta a {
+    overflow-wrap: anywhere;
+  }
+
+  .studio-card {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    padding: var(--space-6);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+  }
+
+  .studio-card__logo {
+    display: block;
+    width: 64px;
+    height: 64px;
+    flex-shrink: 0;
+  }
+
+  .studio-card__name {
+    margin: 0;
+    font-size: 22px;
+  }
+
+  .studio-card__positioning {
+    margin: var(--space-1) 0 0;
+    color: var(--color-brand);
+    font-size: 14px;
+  }
+
+  .studio-card__description {
+    margin: var(--space-2) 0 0;
+    color: var(--color-text-secondary);
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 47.999rem) {
+    .about-page {
+      padding-block: var(--space-8) var(--space-10);
+    }
+
+    .about-section {
+      margin-top: var(--space-12);
+    }
+
+    .profile-card {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-5);
+      padding: var(--space-4);
+    }
+
+    .studio-card {
+      align-items: flex-start;
+      padding: var(--space-4);
+    }
+  }
+</style>

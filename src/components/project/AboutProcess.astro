@@ -1,0 +1,123 @@
+---
+import { STAGES } from '../../lib/constants';
+
+const goals = [
+  '明确品牌、目标用户与首版范围。',
+  '把页面、生命周期与非功能要求写成可验证的条目。',
+  '确定信息架构、视觉规范与交互细节。',
+  '选定技术方案，划清边界并记录关键取舍。',
+  '按任务清单小步实现，持续做类型检查与构建校验。',
+  '检查响应式、可访问性、链接与静态资源。',
+  '完成部署配置、发布与回滚演练。',
+  '根据真实使用情况维护内容与迭代计划。',
+];
+
+const deliverables = [
+  '产品规划文档、范围与阶段目标',
+  '需求分析、数据契约与验收标准',
+  'UI 设计文档、设计 Token 与组件规范',
+  '系统架构、技术设计与部署方案',
+  '可运行代码、提交记录与构建产物',
+  '测试记录、问题清单与修复结果',
+  '线上站点、发布记录与回滚方案',
+  '发布日志、内容更新与下一步计划',
+];
+
+const stages = STAGES.map((stage, index) => ({
+  ...stage,
+  goal: goals[index],
+  deliverable: deliverables[index],
+}));
+---
+
+<ol class="about-process">
+  {
+    stages.map((stage, index) => (
+      <li class="about-process__item">
+        <details open={index === 0}>
+          <summary class="about-process__summary">
+            <span class="about-process__index">{stage.stage}</span>
+            <span class="about-process__name">{stage.name}</span>
+          </summary>
+          <div class="about-process__body">
+            <p>
+              <strong>目标</strong>
+              {stage.goal}
+            </p>
+            <p>
+              <strong>交付物</strong>
+              {stage.deliverable}
+            </p>
+          </div>
+        </details>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .about-process {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .about-process__item {
+    border-bottom: var(--border-width) solid var(--color-border);
+  }
+
+  .about-process__item:first-child {
+    border-top: var(--border-width) solid var(--color-border);
+  }
+
+  .about-process__summary {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    padding: var(--space-4) var(--space-2);
+    cursor: pointer;
+  }
+
+  .about-process__summary:hover .about-process__name {
+    color: var(--color-brand);
+  }
+
+  .about-process__index {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: var(--border-width) solid var(--color-border-strong);
+    border-radius: 50%;
+    color: var(--color-text-muted);
+    font-family: var(--font-family-mono);
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  .about-process__name {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .about-process__body {
+    display: grid;
+    gap: var(--space-1);
+    padding: 0 var(--space-2) var(--space-4) calc(28px + var(--space-3) + var(--space-2));
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .about-process__body p {
+    margin: 0;
+  }
+
+  .about-process__body strong {
+    margin-right: var(--space-2);
+    color: var(--color-text-primary);
+    font-weight: 600;
+  }
+</style>

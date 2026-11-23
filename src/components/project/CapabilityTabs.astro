@@ -1,0 +1,224 @@
+---
+import type { SkillTab } from '../../lib/contracts';
+
+interface Props {
+  tabs: readonly SkillTab[];
+}
+
+const { tabs } = Astro.props;
+const isExternal = (url: string) => url.startsWith('https://');
+---
+
+<div class="capability-tabs" data-capability-tabs>
+  <div class="capability-tabs__list" role="tablist" aria-label="能力与证据">
+    {
+      tabs.map((tab, index) => (
+        <button
+          type="button"
+          class="capability-tabs__tab"
+          role="tab"
+          id={`cap-tab-${tab.key}`}
+          aria-selected={index === 0 ? 'true' : 'false'}
+          aria-controls={`cap-panel-${tab.key}`}
+          tabindex={index === 0 ? 0 : -1}
+          data-cap-tab
+        >
+          {tab.label}
+        </button>
+      ))
+    }
+  </div>
+
+  {
+    tabs.map((tab, index) => (
+      <div
+        class="capability-tabs__panel"
+        role="tabpanel"
+        id={`cap-panel-${tab.key}`}
+        aria-labelledby={`cap-tab-${tab.key}`}
+        tabindex="0"
+        hidden={index !== 0}
+        data-cap-panel
+      >
+        {tab.description && <p class="capability-tabs__description">{tab.description}</p>}
+        <ul class="capability-tabs__items">
+          {tab.items.map((item) => (
+            <li class="capability-tabs__item">
+              <h3 class="capability-tabs__name">{item.name}</h3>
+              <p class="capability-tabs__summary">{item.summary}</p>
+              <ul class="capability-tabs__evidence">
+                {item.evidence.map((evidence) => (
+                  <li>
+                    <a
+                      href={evidence.url}
+                      target={isExternal(evidence.url) ? '_blank' : undefined}
+                      rel={isExternal(evidence.url) ? 'noopener noreferrer' : undefined}
+                    >
+                      {evidence.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))
+  }
+</div>
+
+<script>
+  document.querySelectorAll('[data-capability-tabs]').forEach((root) => {
+    if (!(root instanceof HTMLElement)) {
+      return;
+    }
+
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-cap-tab]'));
+    const panels = Array.from(root.querySelectorAll<HTMLElement>('[data-cap-panel]'));
+
+    if (tabs.length === 0 || tabs.length !== panels.length) {
+      return;
+    }
+
+    const activate = (index: number, focus: boolean) => {
+      tabs.forEach((tab, tabIndex) => {
+        const selected = tabIndex === index;
+        tab.setAttribute('aria-selected', String(selected));
+        tab.tabIndex = selected ? 0 : -1;
+        panels[tabIndex].hidden = !selected;
+      });
+
+      if (focus) {
+        tabs[index].focus();
+      }
+    };
+
+    tabs.forEach((tab, index) => {
+      tab.addEventListener('click', () => activate(index, false));
+
+      tab.addEventListener('keydown', (event) => {
+        const keys = ['ArrowLeft', 'ArrowRight', 'Home', 'End'];
+
+        if (!keys.includes(event.key)) {
+          return;
+        }
+
+        event.preventDefault();
+
+        let nextIndex = index;
+
+        if (event.key === 'Home') {
+          nextIndex = 0;
+        } else if (event.key === 'End') {
+          nextIndex = tabs.length - 1;
+        } else if (event.key === 'ArrowRight') {
+          nextIndex = (index + 1) % tabs.length;
+        } else {
+          nextIndex = (index - 1 + tabs.length) % tabs.length;
+        }
+
+        activate(nextIndex, true);
+      });
+    });
+  });
+</script>
+
+<style>
+  .capability-tabs {
+    display: grid;
+    gap: var(--space-6);
+  }
+
+  .capability-tabs__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    border-bottom: var(--border-width) solid var(--color-border);
+  }
+
+  .capability-tabs__tab {
+    min-height: 44px;
+    padding: 0 var(--space-4);
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--color-text-secondary);
+    font: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      color var(--transition-fast),
+      border-color var(--transition-fast),
+      background-color var(--transition-fast);
+  }
+
+  .capability-tabs__tab:hover {
+    color: var(--color-text-primary);
+  }
+
+  .capability-tabs__tab[aria-selected='true'] {
+    border-bottom-color: var(--color-brand);
+    background: var(--color-brand-soft);
+    color: var(--color-brand);
+  }
+
+  .capability-tabs__panel[hidden] {
+    display: none;
+  }
+
+  .capability-tabs__description {
+    margin: 0 0 var(--space-4);
+    color: var(--color-text-secondary);
+    font-size: 14px;
+  }
+
+  .capability-tabs__items {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .capability-tabs__item {
+    display: grid;
+    gap: var(--space-2);
+    padding: var(--space-4);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+  }
+
+  .capability-tabs__name {
+    margin: 0;
+    font-size: 16px;
+  }
+
+  .capability-tabs__summary {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .capability-tabs__evidence {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .capability-tabs__evidence a {
+    font-size: 13px;
+  }
+
+  @media (max-width: 47.999rem) {
+    .capability-tabs__items {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

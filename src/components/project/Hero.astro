@@ -1,0 +1,123 @@
+---
+import type { Profile } from '../../lib/contracts';
+import type { LiveStats as Stats } from '../../lib/derive';
+import Button from '../ui/Button.astro';
+import LiveStats from './LiveStats.astro';
+import HeroVisual from './HeroVisual.astro';
+
+interface Props {
+  profile: Profile;
+  stats: Stats;
+}
+
+const { profile, stats } = Astro.props;
+---
+
+<section class="hero">
+  <div class="container hero__inner">
+    <div class="hero__text">
+      <p class="hero__kicker">个人作品与技术实践</p>
+      <h1 class="hero__title">{profile.author.bio}</h1>
+      <p class="hero__subtitle">
+        记录真实项目从需求分析、产品设计、技术架构到开发验收的全过程，每个阶段的文档与技术产物都可追溯。
+      </p>
+
+      <div class="hero__actions">
+        <Button href="#featured">查看精选作品</Button>
+        <Button variant="secondary" href="/about/">了解工作方式</Button>
+      </div>
+
+      <LiveStats stats={stats} />
+      <p class="hero__author">{profile.author.name} · {profile.author.title}</p>
+    </div>
+
+    <div class="hero__visual">
+      <HeroVisual />
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    padding-block: var(--space-16) var(--space-12);
+  }
+
+  .hero__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: var(--space-12);
+    align-items: center;
+  }
+
+  .hero__kicker {
+    margin: 0 0 var(--space-2);
+    color: var(--color-brand);
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .hero__title {
+    margin: 0;
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+
+  .hero__subtitle {
+    max-width: 34em;
+    margin: var(--space-4) 0 0;
+    color: var(--color-text-secondary);
+    font-size: 18px;
+    line-height: 1.7;
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-6);
+  }
+
+  .hero__author {
+    margin: var(--space-6) 0 0;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+  }
+
+  .hero__visual {
+    width: 100%;
+    max-width: 420px;
+    margin-left: auto;
+  }
+
+  @media (max-width: 63.999rem) {
+    .hero__inner {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-10);
+    }
+
+    .hero__visual {
+      max-width: 360px;
+      margin-inline: auto;
+    }
+  }
+
+  @media (max-width: 47.999rem) {
+    .hero {
+      padding-block: var(--space-10) var(--space-8);
+    }
+
+    .hero__title {
+      font-size: 36px;
+    }
+
+    .hero__subtitle {
+      font-size: 16px;
+    }
+
+    .hero__visual {
+      max-width: 300px;
+    }
+  }
+</style>

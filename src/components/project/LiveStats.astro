@@ -1,0 +1,133 @@
+---
+import type { LiveStats as Stats } from '../../lib/derive';
+
+interface Props {
+  stats: Stats;
+}
+
+const { stats } = Astro.props;
+const items = [
+  { label: '公开作品', value: stats.works, unit: '个' },
+  { label: '已完成阶段', value: stats.completedStages, unit: '个' },
+  { label: '设计文档', value: stats.publicDocuments, unit: '份' },
+];
+---
+
+<div class="live-stats">
+  <div class="live-stats__head">
+    <p class="live-stats__title">数据概览</p>
+    <p class="live-stats__updated">
+      最近更新
+      <time datetime={stats.recentUpdate ?? undefined}>
+        {stats.recentUpdate ? stats.recentUpdate.slice(5) : '—'}
+      </time>
+    </p>
+  </div>
+
+  <dl class="live-stats__grid">
+    {
+      items.map((item) => (
+        <div class="live-stats__item">
+          <dt class="live-stats__label">{item.label}</dt>
+          <dd class="live-stats__value">
+            {item.value}
+            <span class="live-stats__unit">{item.unit}</span>
+          </dd>
+        </div>
+      ))
+    }
+  </dl>
+</div>
+
+<style>
+  .live-stats {
+    overflow: hidden;
+    margin-top: var(--space-8);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-xl);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .live-stats__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    padding: 10px var(--space-5);
+    border-bottom: var(--border-width) solid var(--color-border);
+  }
+
+  .live-stats__title {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-family: var(--font-family-mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.16em;
+  }
+
+  .live-stats__updated {
+    margin: 0;
+    color: var(--color-text-muted);
+    font-size: 11px;
+  }
+
+  .live-stats__updated time {
+    font-family: var(--font-family-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .live-stats__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1px;
+    margin: 0;
+    background: var(--color-border);
+  }
+
+  .live-stats__item {
+    display: grid;
+    gap: 2px;
+    padding: 14px var(--space-5);
+    background: var(--color-surface);
+  }
+
+  .live-stats__label {
+    color: var(--color-text-muted);
+    font-size: 11px;
+  }
+
+  .live-stats__value {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-family: var(--font-family-mono);
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .live-stats__unit {
+    margin-left: 2px;
+    color: var(--color-text-secondary);
+    font-size: 12px;
+    font-weight: 400;
+  }
+
+  @media (max-width: 47.999rem) {
+    .live-stats__head {
+      padding: 8px var(--space-4);
+    }
+
+    .live-stats__item {
+      padding: 12px var(--space-4);
+    }
+
+    .live-stats__value {
+      font-size: 22px;
+    }
+  }
+</style>

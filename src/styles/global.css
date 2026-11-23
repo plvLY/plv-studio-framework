@@ -65,6 +65,11 @@
   /* 动效 */
   --transition-fast: 150ms ease;
   --transition-expand: 200ms ease;
+
+  /* 终端风格主卡 */
+  --color-terminal: #0f172a;
+  --color-terminal-border: transparent;
+  --color-terminal-text: #e5e7eb;
 }
 
 html[data-theme='dark'] {
@@ -84,6 +89,9 @@ html[data-theme='dark'] {
   --color-success: #4ade80;
   --color-warning: #fbbf24;
   --color-danger: #f87171;
+
+  --color-terminal: #020617;
+  --color-terminal-border: #1f2937;
 }
 
 /* Tailwind 的 font-sans / font-mono 复用文档 Token。 */

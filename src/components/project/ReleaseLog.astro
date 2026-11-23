@@ -1,0 +1,119 @@
+---
+import type { ReleaseLog as ReleaseLogData } from '../../lib/derive';
+
+interface Props {
+  log: ReleaseLogData;
+}
+
+const { log } = Astro.props;
+const groups = [
+  { key: 'released', label: '已上线', entries: log.released },
+  { key: 'inProgress', label: '进行中', entries: log.inProgress },
+  { key: 'planned', label: '计划中', entries: log.planned },
+].filter((group) => group.entries.length > 0);
+---
+
+<div class="release-log">
+  {
+    groups.map((group) => (
+      <section class="release-log__group" data-group={group.key}>
+        <h3 class="release-log__title">
+          <span class="release-log__dot" aria-hidden="true" />
+          {group.label}
+        </h3>
+        <ul class="release-log__list">
+          {group.entries.map((entry) => (
+            <li class="release-log__item">
+              <time class="release-log__date" datetime={entry.date}>
+                {entry.date.slice(5)}
+              </time>
+              <a class="release-log__project" href={`/projects/${entry.slug}/`}>
+                {entry.title}
+              </a>
+              <span class="release-log__note">{entry.note}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+</div>
+
+<style>
+  .release-log {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-6);
+  }
+
+  .release-log__title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0 0 var(--space-3);
+    color: var(--color-text-secondary);
+    font-family: var(--font-family-mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+  }
+
+  .release-log__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-text-muted);
+  }
+
+  .release-log__group[data-group='released'] .release-log__dot {
+    background: var(--color-success);
+  }
+
+  .release-log__group[data-group='inProgress'] .release-log__dot {
+    background: var(--color-brand);
+  }
+
+  .release-log__list {
+    display: grid;
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .release-log__item {
+    display: grid;
+    grid-template-columns: auto auto;
+    justify-content: start;
+    gap: 2px var(--space-2);
+    font-size: 13px;
+  }
+
+  .release-log__date {
+    color: var(--color-text-muted);
+    font-family: var(--font-family-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .release-log__project {
+    color: var(--color-text-primary);
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .release-log__project:hover {
+    text-decoration: underline;
+  }
+
+  .release-log__note {
+    grid-column: 1 / -1;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+  }
+
+  @media (max-width: 47.999rem) {
+    .release-log {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

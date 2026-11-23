@@ -1,14 +1,213 @@
 ---
-// T-06-07 起使用全局布局；正式首页区块将在 T-06-09 按 UI 设计实现。
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { getDataUrl, loadSiteData } from '../lib/data-source';
+import {
+  calcPercent,
+  deriveDeveloping,
+  deriveFeatured,
+  deriveJourney,
+  deriveLiveStats,
+  deriveReleaseLog,
+} from '../lib/derive';
+import type { Work } from '../lib/contracts';
+import Hero from '../components/project/Hero.astro';
+import FeaturedCard from '../components/project/FeaturedCard.astro';
+import DevelopingCard from '../components/project/DevelopingCard.astro';
+import CapabilityTabs from '../components/project/CapabilityTabs.astro';
+import ReleaseLog from '../components/project/ReleaseLog.astro';
+import ProcessTrack from '../components/project/ProcessTrack.astro';
+import ProjectCard from '../components/project/ProjectCard.astro';
+import SectionHeading from '../components/ui/SectionHeading.astro';
+import EmptyState from '../components/ui/EmptyState.astro';
+
+const data = await loadSiteData();
+const works = data.index.slugs.map((slug) => data.works[slug]);
+const documentsBySlug = Object.fromEntries(
+  Object.entries(data.documents).map(([slug, documents]) => [
+    slug,
+    documents.map((document) => document.meta),
+  ]),
+);
+
+const stats = deriveLiveStats(works, data.progress.projects, documentsBySlug);
+
+const featuredAll = deriveFeatured(data.profile, data.works);
+const featured = featuredAll.length > 0 ? featuredAll : works.slice(0, 2);
+const [featuredMain, ...featuredRest] = featured;
+
+const developingList = deriveDeveloping(works, data.progress.projects, documentsBySlug);
+const developing = developingList.slice(0, 3);
+
+const releaseLog = deriveReleaseLog(data.progress.projects, data.works, 5);
+const hasReleaseLog =
+  releaseLog.released.length + releaseLog.inProgress.length + releaseLog.planned.length > 0;
+
+const skillsTabs = data.skills?.tabs ?? [];
+
+const cardProps = (work: Work) => {
+  const project = data.progress.projects[work.slug];
+  const journey = deriveJourney(work, project, documentsBySlug[work.slug] ?? []);
+
+  return {
+    work,
+    href: `/projects/${work.slug}/`,
+    coverUrl: getDataUrl(work.cover),
+    percent: calcPercent(project),
+    currentStageName: journey.currentStageName,
+    recentUpdate: journey.recentUpdate,
+  };
+};
 
 const title = 'PLV Studio — 个人研发工作室';
-const description = 'PLV Studio 是吖飘创建和运营的个人研发工作室。';
+const description = data.profile.seo.defaultDescription;
 ---
 
 <BaseLayout title={title} description={description}>
-  <section class="container" style="padding-block: var(--space-16);">
-    <h1>PLV Studio</h1>
-    <p>个人研发工作室</p>
+  <Hero profile={data.profile} stats={stats} />
+
+  <section class="container home-section" id="featured">
+    <SectionHeading
+      title="精选作品"
+      description="用一个完整案例，看清从需求、设计到上线验收的真实过程。"
+      linkHref="/projects/"
+    />
+    {
+      featuredMain ? (
+        <div class:list={['featured-layout', { 'featured-layout--single': featuredRest.length === 0 }]}>
+          <div class="featured-main">
+            <FeaturedCard
+              work={featuredMain}
+              href={`/projects/${featuredMain.slug}/`}
+              coverUrl={getDataUrl(featuredMain.cover)}
+            />
+          </div>
+
+          {featuredRest.length > 0 && (
+            <div class="featured-band">
+              {featuredRest.map((work) => (
+                <div class="featured-band__item">
+                  <ProjectCard {...cardProps(work)} />
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
+        <EmptyState
+          title="还没有公开作品"
+          description="作品上线后会出现在这里。"
+          linkHref="/about/"
+          linkLabel="了解工作室"
+        />
+      )
+    }
+  </section>
+
+  {
+    developing.length > 0 && (
+      <section class="container home-section">
+        <SectionHeading
+          title="正在开发"
+          description="进度、阶段与最近更新都按真实状态展示，不合并、不粉饰。"
+          linkHref="/projects/"
+          linkLabel={`${developingList.length} 个进行中`}
+        />
+        <div class="developing-grid">
+          {developing.map((item) => (
+            <DevelopingCard item={item} href={`/projects/${item.work.slug}/`} />
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    skillsTabs.length > 0 && (
+      <section class="container home-section">
+        <SectionHeading
+          title="能力与证据"
+          description="能力不靠形容词，靠项目、文档与代码来证明。点开任一方向，先看站内实现脉络。"
+        />
+        <CapabilityTabs tabs={skillsTabs} />
+      </section>
+    )
+  }
+
+  {
+    hasReleaseLog && (
+      <section class="container home-section">
+        <SectionHeading
+          title="发布日志"
+          description="按真实日期记录最近发生的变化，完整记录保留在作品详情页。"
+        />
+        <ReleaseLog log={releaseLog} />
+      </section>
+    )
+  }
+
+  <section class="container home-section">
+    <SectionHeading
+      title="通用开发流程"
+      description="从产品规划到运行迭代，八个阶段都对应站内真实文档与记录，而不只是概念。"
+      linkHref="/about/#process"
+      linkLabel="了解工作方式"
+    />
+    <ProcessTrack />
   </section>
 </BaseLayout>
+
+<style>
+  .home-section {
+    margin-top: var(--space-20);
+  }
+
+  .featured-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+    gap: var(--space-6);
+    align-items: start;
+  }
+
+  .featured-layout--single {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .featured-layout--single .featured-main {
+    max-width: 960px;
+  }
+
+  .featured-band {
+    display: flex;
+    gap: var(--space-4);
+    overflow-x: auto;
+    padding-bottom: var(--space-2);
+    scroll-snap-type: x mandatory;
+  }
+
+  .featured-band__item {
+    flex: 0 0 min(300px, 85%);
+    scroll-snap-align: start;
+  }
+
+  .developing-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-6);
+  }
+
+  @media (max-width: 63.999rem) {
+    .featured-layout {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 47.999rem) {
+    .home-section {
+      margin-top: var(--space-12);
+    }
+
+    .developing-grid {
+      gap: var(--space-4);
+    }
+  }
+</style>

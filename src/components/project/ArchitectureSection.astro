@@ -1,0 +1,117 @@
+---
+import type { Work } from '../../lib/contracts';
+import { renderMermaidSvg } from '../../lib/mermaid';
+
+interface Props {
+  architecture: Work['architecture'];
+  slug: string;
+  imageUrl?: string;
+  technicalHref?: string;
+}
+
+const { architecture, slug, imageUrl, technicalHref } = Astro.props;
+const diagram = architecture.diagram;
+const svg = diagram.kind === 'mermaid' ? await renderMermaidSvg(diagram.source, `arch-${slug}`) : null;
+---
+
+<div class="architecture">
+  <p class="architecture__summary">{architecture.summary}</p>
+
+  {
+    svg ? (
+      <figure class="architecture__figure">
+        <div class="architecture__svg" set:html={svg} />
+      </figure>
+    ) : imageUrl ? (
+      <figure class="architecture__figure">
+        <img src={imageUrl} alt={diagram.kind === 'image' ? diagram.alt : ''} loading="lazy" />
+      </figure>
+    ) : null
+  }
+
+  {
+    architecture.decisions.length > 0 && (
+      <ul class="architecture__decisions">
+        {architecture.decisions.map((decision) => (
+          <li>
+            <h3 class="architecture__decision-title">{decision.title}</h3>
+            <p class="architecture__decision-choice">{decision.choice}</p>
+            <p class="architecture__decision-reason">{decision.reason}</p>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+
+  {technicalHref && <a class="architecture__link" href={technicalHref}>查看技术方案</a>}
+</div>
+
+<style>
+  .architecture__summary {
+    margin: 0 0 var(--space-4);
+    color: var(--color-text-secondary);
+    font-size: 15px;
+    line-height: 1.75;
+  }
+
+  .architecture__figure {
+    margin: 0;
+    padding: var(--space-4);
+    overflow-x: auto;
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: #fff;
+  }
+
+  .architecture__svg :global(svg) {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 520px;
+  }
+
+  .architecture__figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .architecture__decisions {
+    display: grid;
+    gap: var(--space-3);
+    margin: var(--space-4) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .architecture__decisions li {
+    padding: var(--space-4);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+  }
+
+  .architecture__decision-title {
+    margin: 0;
+    font-size: 15px;
+  }
+
+  .architecture__decision-choice {
+    margin: var(--space-1) 0 0;
+    color: var(--color-text-primary);
+    font-size: 14px;
+  }
+
+  .architecture__decision-reason {
+    margin: var(--space-1) 0 0;
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .architecture__link {
+    display: inline-block;
+    margin-top: var(--space-3);
+    font-size: 14px;
+  }
+</style>

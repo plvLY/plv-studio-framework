@@ -1,0 +1,67 @@
+---
+import type { Work } from '../../lib/contracts';
+
+interface Props {
+  star: Work['star'];
+}
+
+const { star } = Astro.props;
+const blocks = [
+  { index: '01', title: '痛点', text: star.problem },
+  { index: '02', title: '方案', text: star.solution },
+  { index: '03', title: '价值', text: star.value },
+];
+---
+
+<div class="star-section">
+  {
+    blocks.map((block) => (
+      <article class="star-section__card">
+        <p class="star-section__index">{block.index}</p>
+        <h3 class="star-section__title">{block.title}</h3>
+        <p class="star-section__text">{block.text}</p>
+      </article>
+    ))
+  }
+</div>
+
+<style>
+  .star-section {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+
+  .star-section__card {
+    padding: var(--space-5);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+  }
+
+  .star-section__index {
+    margin: 0 0 var(--space-2);
+    color: var(--color-brand);
+    font-family: var(--font-family-mono);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .star-section__title {
+    margin: 0 0 var(--space-2);
+    font-size: 16px;
+  }
+
+  .star-section__text {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  @media (max-width: 47.999rem) {
+    .star-section {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

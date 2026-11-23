@@ -1,0 +1,387 @@
+---
+import PageLayout from '../../../layouts/PageLayout.astro';
+import {
+  getDataUrl,
+  getDocumentIndex,
+  getProfile,
+  getProgress,
+  getWork,
+  getWorkSlugs,
+} from '../../../lib/data-source';
+import { calcPercent, deriveJourney } from '../../../lib/derive';
+import { STAGE_STATUS_LABELS } from '../../../lib/constants';
+import Breadcrumb from '../../../components/project/Breadcrumb.astro';
+import StarSection from '../../../components/project/StarSection.astro';
+import ArchitectureSection from '../../../components/project/ArchitectureSection.astro';
+import AcceptanceSection from '../../../components/project/AcceptanceSection.astro';
+import DetailAside from '../../../components/project/DetailAside.astro';
+import StatusBadge from '../../../components/ui/StatusBadge.astro';
+import TechBadge from '../../../components/ui/TechBadge.astro';
+import SectionHeading from '../../../components/ui/SectionHeading.astro';
+import StageTimeline from '../../../components/progress/StageTimeline.astro';
+import DocumentCard from '../../../components/docs/DocumentCard.astro';
+
+export async function getStaticPaths() {
+  const slugs = await getWorkSlugs();
+  return slugs.map((slug) => ({ params: { slug } }));
+}
+
+const slug = Astro.params.slug;
+
+if (!slug) {
+  throw new Error('缺少作品 slug');
+}
+
+const [work, profile, progress, documents] = await Promise.all([
+  getWork(slug),
+  getProfile(),
+  getProgress(),
+  getDocumentIndex(slug),
+]);
+
+const project = progress.projects[slug];
+
+if (!project) {
+  throw new Error(`作品 ${slug} 缺少进度数据`);
+}
+
+const journey = deriveJourney(work, project, documents);
+const percent = calcPercent(project);
+
+const technicalDoc =
+  documents.find((document) => document.stage === 4) ??
+  documents.find((document) => document.id.includes('architecture'));
+const technicalHref = technicalDoc
+  ? `/projects/${slug}/docs/${technicalDoc.id}/`
+  : work.links.find((link) => link.type === 'doc')?.url;
+
+const diagramImageUrl =
+  work.architecture.diagram.kind === 'image'
+    ? getDataUrl(work.architecture.diagram.src)
+    : undefined;
+
+const releaseStage = project.stages.find((stage) => stage.stage === 7);
+const opsStage = project.stages.find((stage) => stage.stage === 8);
+const liveLink = work.links.find((link) => link.type === 'live');
+const latestVersion = project.stages
+  .flatMap((stage) => stage.changelog)
+  .filter((item) => item.version)
+  .sort((left, right) => right.date.localeCompare(left.date))[0]?.version;
+
+const tocItems = [
+  { id: 'star', text: '痛点、方案与价值' },
+  { id: 'architecture', text: '架构与流程' },
+  { id: 'overview', text: '项目概览' },
+  { id: 'progress', text: '进度时间线' },
+  ...(documents.length > 0 ? [{ id: 'documents', text: '设计文档' }] : []),
+  { id: 'acceptance', text: '验收与上线' },
+];
+
+const isExternal = (url: string) => url.startsWith('https://');
+const title =
+  work.title === profile.brand.studioName
+    ? `${work.title} — 项目档案`
+    : `${work.title} — ${profile.brand.studioName}`;
+const description = work.summary;
+---
+
+<PageLayout title={title} description={description}>
+  <div class="container project-page">
+    <Breadcrumb parentHref="/projects/" parentLabel="作品" current={work.title} />
+
+    <header class="project-head">
+      <div class="project-head__text">
+        <StatusBadge kind="project" status={work.status} />
+        <h1 class="project-head__title">{work.title}</h1>
+        {work.subtitle && <p class="project-head__subtitle">{work.subtitle}</p>}
+        <p class="project-head__summary">{work.summary}</p>
+
+        <ul class="project-head__tags" aria-label="技术栈">
+          {
+            work.techStack.map((tag) => (
+              <li>
+                <TechBadge label={tag} />
+              </li>
+            ))
+          }
+        </ul>
+
+        <p class="project-head__meta">创建者 {work.owner} · 维护者 {work.maintainer}</p>
+
+        {
+          work.links.length > 0 && (
+            <ul class="project-head__links">
+              {work.links.map((link) => (
+                <li>
+                  <a
+                    href={link.url}
+                    target={isExternal(link.url) ? '_blank' : undefined}
+                    rel={isExternal(link.url) ? 'noopener noreferrer' : undefined}
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </div>
+
+      <div class="project-head__cover">
+        <img
+          src={getDataUrl(work.cover)}
+          alt={work.coverAlt}
+          width="640"
+          height="400"
+          loading="eager"
+          decoding="async"
+        />
+      </div>
+    </header>
+
+    <div class="project-body">
+      <article class="project-main">
+        <section class="project-section" id="star">
+          <SectionHeading title="痛点、方案与价值" />
+          <StarSection star={work.star} />
+        </section>
+
+        <section class="project-section" id="architecture">
+          <SectionHeading title="架构与流程" />
+          <ArchitectureSection
+            architecture={work.architecture}
+            slug={slug}
+            imageUrl={diagramImageUrl}
+            technicalHref={technicalHref}
+          />
+        </section>
+
+        <section class="project-section" id="overview">
+          <SectionHeading title="项目概览" />
+          <div class="project-overview">
+            <h3>背景</h3>
+            <p>{work.overview.background}</p>
+
+            <h3>目标</h3>
+            <ul class="project-overview__list">
+              {work.overview.goals.map((goal) => <li>{goal}</li>)}
+            </ul>
+
+            <h3>验收标准</h3>
+            <ul class="project-overview__checklist">
+              {
+                work.overview.acceptance.map((item) => (
+                  <li>
+                    <span class="project-overview__check" aria-hidden="true">✓</span>
+                    {item}
+                  </li>
+                ))
+              }
+            </ul>
+          </div>
+        </section>
+
+        <section class="project-section" id="progress">
+          <SectionHeading title="进度时间线" description={`当前进度 ${percent}%`} />
+          <StageTimeline stages={project.stages} currentStage={project.currentStage} />
+        </section>
+
+        {
+          documents.length > 0 && (
+            <section class="project-section" id="documents">
+              <SectionHeading title="设计文档" />
+              <div class="project-docs">
+                {documents.map((document) => (
+                  <DocumentCard
+                    document={document}
+                    href={`/projects/${slug}/docs/${document.id}/`}
+                  />
+                ))}
+              </div>
+            </section>
+          )
+        }
+
+        <section class="project-section" id="acceptance">
+          <SectionHeading title="验收与上线" />
+          <AcceptanceSection
+            releaseStatus={STAGE_STATUS_LABELS[releaseStage?.status ?? 'planned']}
+            liveUrl={liveLink?.url}
+            version={latestVersion}
+            maintenance={opsStage?.summary?.trim() || '—'}
+          />
+        </section>
+      </article>
+
+      <DetailAside work={work} recentUpdate={journey.recentUpdate} tocItems={tocItems} />
+    </div>
+  </div>
+</PageLayout>
+
+<style>
+  .project-page {
+    padding-block: var(--space-5) var(--space-12);
+  }
+
+  .project-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 280px;
+    gap: var(--space-8);
+    align-items: start;
+    padding-block: var(--space-6) var(--space-8);
+    border-bottom: var(--border-width) solid var(--color-border);
+  }
+
+  .project-head__title {
+    margin: var(--space-2) 0 0;
+    font-size: 36px;
+    line-height: 1.25;
+  }
+
+  .project-head__subtitle {
+    margin: var(--space-2) 0 0;
+    color: var(--color-text-primary);
+    font-size: 18px;
+    line-height: 1.6;
+  }
+
+  .project-head__summary {
+    margin: var(--space-3) 0 0;
+    color: var(--color-text-secondary);
+    font-size: 15px;
+    line-height: 1.75;
+  }
+
+  .project-head__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+    margin: var(--space-4) 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .project-head__meta {
+    margin: var(--space-4) 0 0;
+    color: var(--color-text-muted);
+    font-size: 13px;
+  }
+
+  .project-head__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin: var(--space-3) 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 13px;
+  }
+
+  .project-head__cover {
+    aspect-ratio: 16 / 10;
+    padding: var(--space-3);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-page);
+  }
+
+  .project-head__cover img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  .project-body {
+    display: grid;
+    grid-template-columns: minmax(0, 760px) 280px;
+    justify-content: space-between;
+    gap: var(--space-10);
+    padding-block: var(--space-10);
+  }
+
+  .project-main {
+    min-width: 0;
+  }
+
+  .project-section {
+    scroll-margin-top: calc(var(--header-height) + var(--space-4));
+  }
+
+  .project-section + .project-section {
+    margin-top: var(--space-12);
+  }
+
+  .project-overview h3 {
+    margin: var(--space-6) 0 var(--space-2);
+    font-size: 16px;
+  }
+
+  .project-overview h3:first-child {
+    margin-top: 0;
+  }
+
+  .project-overview p {
+    margin: 0;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    line-height: 1.8;
+  }
+
+  .project-overview__list,
+  .project-overview__checklist {
+    display: grid;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    line-height: 1.7;
+    list-style: none;
+  }
+
+  .project-overview__list {
+    padding-left: 1.2em;
+    list-style: disc;
+  }
+
+  .project-overview__checklist li {
+    display: flex;
+    gap: var(--space-2);
+  }
+
+  .project-overview__check {
+    color: var(--color-success);
+    font-weight: 700;
+  }
+
+  .project-docs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+
+  @media (max-width: 63.999rem) {
+    .project-head {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .project-head__cover {
+      max-width: 320px;
+    }
+
+    .project-body {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 47.999rem) {
+    .project-head__title {
+      font-size: 30px;
+    }
+
+    .project-docs {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

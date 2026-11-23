@@ -1,0 +1,234 @@
+---
+import { LINK_TYPE_LABELS } from '../../lib/constants';
+import type { Work } from '../../lib/contracts';
+import DocToc from '../docs/DocToc.astro';
+import TechBadge from '../ui/TechBadge.astro';
+
+interface TocItem {
+  id: string;
+  text: string;
+}
+
+interface Props {
+  work: Work;
+  recentUpdate: string;
+  tocItems: readonly TocItem[];
+}
+
+const { work, recentUpdate, tocItems } = Astro.props;
+const isExternal = (url: string) => url.startsWith('https://');
+---
+
+<aside class="detail-aside">
+  <DocToc items={tocItems} title="本页目录" page />
+
+  <section class="detail-aside__block">
+    <h2 class="detail-aside__heading">技术栈</h2>
+    <ul class="detail-aside__tags">
+      {
+        work.techStack.map((tag) => (
+          <li>
+            <TechBadge label={tag} />
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="detail-aside__block">
+    <h2 class="detail-aside__heading">项目事实</h2>
+    <dl class="detail-aside__facts">
+      <div>
+        <dt>创建时间</dt>
+        <dd><time datetime={work.startDate}>{work.startDate}</time></dd>
+      </div>
+      <div>
+        <dt>最近更新</dt>
+        <dd><time datetime={recentUpdate}>{recentUpdate}</time></dd>
+      </div>
+      <div>
+        <dt>分类</dt>
+        <dd>{work.category}</dd>
+      </div>
+      <div>
+        <dt>维护者</dt>
+        <dd>{work.maintainer}</dd>
+      </div>
+    </dl>
+  </section>
+
+  {
+    work.links.length > 0 && (
+      <section class="detail-aside__block">
+        <h2 class="detail-aside__heading">外部入口</h2>
+        <ul class="detail-aside__links">
+          {work.links.map((link) => (
+            <li>
+              <a
+                href={link.url}
+                target={isExternal(link.url) ? '_blank' : undefined}
+                rel={isExternal(link.url) ? 'noopener noreferrer' : undefined}
+              >
+                {link.label}
+              </a>
+              <span>{LINK_TYPE_LABELS[link.type]}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+</aside>
+
+<script>
+  const toc = document.querySelector('[data-page-toc]');
+
+  if (toc instanceof HTMLElement) {
+    const links = Array.from(toc.querySelectorAll<HTMLAnchorElement>('a[href^="#"]'));
+    const targets = links.map((link) => {
+      const id = link.getAttribute('href')?.slice(1);
+      return id ? document.getElementById(id) : null;
+    });
+
+    let activeIndex = -1;
+
+    const setActive = (nextIndex: number) => {
+      if (nextIndex === activeIndex) {
+        return;
+      }
+
+      activeIndex = nextIndex;
+      links.forEach((link, index) => {
+        if (index === nextIndex) {
+          link.setAttribute('aria-current', 'location');
+        } else {
+          link.removeAttribute('aria-current');
+        }
+      });
+    };
+
+    const update = () => {
+      const offset = 160;
+      let nextIndex = 0;
+
+      targets.forEach((target, index) => {
+        if (target && target.getBoundingClientRect().top <= offset) {
+          nextIndex = index;
+        }
+      });
+
+      if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) {
+        nextIndex = links.length - 1;
+      }
+
+      setActive(nextIndex);
+    };
+
+    links.forEach((link, index) => {
+      link.addEventListener('click', () => setActive(index));
+    });
+
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', update);
+  }
+</script>
+
+<style>
+  .detail-aside {
+    position: sticky;
+    top: calc(var(--header-height) + var(--space-4));
+    display: grid;
+    gap: var(--space-6);
+    max-height: calc(100vh - var(--header-height) - var(--space-8));
+    overflow-y: auto;
+    padding-bottom: var(--space-4);
+  }
+
+  .detail-aside :global(.doc-toc) {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .detail-aside__heading {
+    margin: 0 0 var(--space-2);
+    color: var(--color-text-muted);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+  }
+
+  .detail-aside__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .detail-aside__facts {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+  }
+
+  .detail-aside__facts div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+    font-size: 13px;
+  }
+
+  .detail-aside__facts dt {
+    color: var(--color-text-muted);
+    font-size: 12px;
+  }
+
+  .detail-aside__facts dd {
+    margin: 0;
+    color: var(--color-text-primary);
+    text-align: right;
+  }
+
+  .detail-aside__facts time {
+    font-family: var(--font-family-mono);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .detail-aside__links {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .detail-aside__links li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .detail-aside__links a {
+    font-size: 13px;
+  }
+
+  .detail-aside__links span {
+    color: var(--color-text-muted);
+    font-size: 12px;
+  }
+
+  @media (max-width: 63.999rem) {
+    .detail-aside {
+      position: static;
+      max-height: none;
+      overflow: visible;
+      padding-top: var(--space-6);
+      border-top: var(--border-width) solid var(--color-border);
+    }
+  }
+</style>

@@ -1,0 +1,81 @@
+---
+interface Props {
+  releaseStatus: string;
+  liveUrl?: string;
+  version?: string;
+  maintenance: string;
+}
+
+const { releaseStatus, liveUrl, version, maintenance } = Astro.props;
+const liveHost = liveUrl
+  ? (() => {
+      try {
+        return new URL(liveUrl).hostname;
+      } catch {
+        return liveUrl;
+      }
+    })()
+  : null;
+---
+
+<dl class="acceptance">
+  <div class="acceptance__item">
+    <dt>验收结论</dt>
+    <dd>{releaseStatus}</dd>
+  </div>
+  <div class="acceptance__item">
+    <dt>上线地址</dt>
+    <dd>
+      {liveUrl && liveHost ? <a href={liveUrl} target="_blank" rel="noopener noreferrer">{liveHost}</a> : '—'}
+    </dd>
+  </div>
+  <div class="acceptance__item">
+    <dt>版本号</dt>
+    <dd class="acceptance__mono">{version ?? '—'}</dd>
+  </div>
+  <div class="acceptance__item">
+    <dt>维护复盘</dt>
+    <dd>{maintenance}</dd>
+  </div>
+</dl>
+
+<style>
+  .acceptance {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
+    margin: 0;
+  }
+
+  .acceptance__item {
+    display: grid;
+    gap: var(--space-1);
+    padding: var(--space-4);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface);
+  }
+
+  .acceptance__item dt {
+    color: var(--color-text-muted);
+    font-size: 12px;
+  }
+
+  .acceptance__item dd {
+    margin: 0;
+    color: var(--color-text-primary);
+    font-size: 14px;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+  }
+
+  .acceptance__mono {
+    font-family: var(--font-family-mono);
+  }
+
+  @media (max-width: 47.999rem) {
+    .acceptance {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

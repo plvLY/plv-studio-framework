@@ -8,13 +8,16 @@ interface TocItem {
 interface Props {
   items: readonly TocItem[];
   activeId?: string;
+  title?: string;
+  /** 详情页用于滚动高亮的本页目录。 */
+  page?: boolean;
 }
 
-const { items, activeId } = Astro.props;
+const { items, activeId, title = '目录', page = false } = Astro.props;
 ---
 
-<nav class="doc-toc" aria-label="文档目录">
-  <p class="doc-toc__title">目录</p>
+<nav class="doc-toc" aria-label={title} data-page-toc={page ? '' : undefined}>
+  <p class="doc-toc__title">{title}</p>
   <ol>
     {
       items.map((item) => (

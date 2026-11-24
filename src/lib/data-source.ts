@@ -2,16 +2,13 @@ import matter from 'gray-matter';
 import type { z } from 'zod';
 import {
   DataContractError,
-  documentFrontmatterSchema,
   parseContract,
   profileSchema,
   progressSchema,
   skillsSchema,
   validateBundle,
-  validateDocumentIndex,
   workSchema,
   worksIndexSchema,
-  type DocumentFrontmatter,
   type DocumentMeta,
   type Profile,
   type Progress,
@@ -47,8 +44,8 @@ export class DataSourceError extends Error {
 }
 
 export interface LoadedDocument {
+  /** 文档元信息，全部来自 works/{slug}.json，不依赖 Markdown 头部。 */
   meta: DocumentMeta;
-  frontmatter: DocumentFrontmatter;
   body: string;
 }
 
@@ -254,17 +251,19 @@ function fetchTextRaw(path: string): Promise<string | Missing> {
   return promise;
 }
 
-function parseFrontmatter(raw: string, file: string): { data: unknown; content: string } {
+/**
+ * 剥离文档可能自带的 frontmatter，只保留正文。
+ * 文档内容不做任何格式校验：缺少头部或头部不合规都照常渲染。
+ */
+function stripFrontmatter(raw: string): string {
+  if (!raw.startsWith('---')) {
+    return raw;
+  }
+
   try {
-    const parsed = matter(raw);
-    return { data: parsed.data, content: parsed.content };
-  } catch (error) {
-    throw new DataSourceError(
-      file,
-      '(frontmatter)',
-      'V-02',
-      `${file} frontmatter 解析失败：${errorMessage(error)}`,
-    );
+    return matter(raw).content;
+  } catch {
+    return raw;
   }
 }
 
@@ -275,10 +274,7 @@ async function loadDocument(meta: DocumentMeta): Promise<LoadedDocument> {
     throw new DataSourceError(meta.file, 'file', 'V-10', `${meta.file} 不存在（404）`);
   }
 
-  const { data, content } = parseFrontmatter(raw, meta.file);
-  const frontmatter = parseContract(documentFrontmatterSchema, data, meta.file, 'V-02');
-
-  return { meta, frontmatter, body: content };
+  return { meta, body: stripFrontmatter(raw) };
 }
 
 /** 对图片路径发起 HEAD 校验，404 即报错（V-11）。 */
@@ -344,16 +340,6 @@ async function loadSiteDataInternal(): Promise<SiteData> {
         .sort((left, right) => left.order - right.order);
 
       const loaded = await Promise.all(visible.map((meta) => loadDocument(meta)));
-      const frontmatters: Record<string, DocumentFrontmatter> = {};
-
-      loaded.forEach((document) => {
-        frontmatters[document.meta.id] = document.frontmatter;
-      });
-
-      validateDocumentIndex({ ...work, documents: visible }, frontmatters, (docId) => {
-        const meta = visible.find((item) => item.id === docId);
-        return meta?.file ?? `documents/${slug}/${docId}.md`;
-      });
 
       documents[slug] = loaded;
     }),
@@ -458,7 +444,7 @@ export async function getDocumentIndex(slug: string): Promise<DocumentMeta[]> {
   return documents.map((document) => document.meta);
 }
 
-/** 返回公开文档的元信息、frontmatter 与 Markdown 正文。 */
+/** 返回公开文档的元信息与 Markdown 正文。 */
 export async function getDocument(slug: string, docId: string): Promise<LoadedDocument> {
   const data = await loadSiteData();
   const document = data.documents[slug]?.find((item) => item.meta.id === docId);

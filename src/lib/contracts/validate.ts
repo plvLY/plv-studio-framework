@@ -1,5 +1,4 @@
 import { DataContractError } from './errors';
-import type { DocumentFrontmatter } from './document';
 import type { Profile } from './profile';
 import type { Progress } from './progress';
 import type { Work, WorksIndex } from './work';
@@ -113,59 +112,4 @@ export function validateBundle(bundle: DataBundle): string[] {
   });
 
   return warnings;
-}
-
-/**
- * V-10：作品内的文档索引必须与 Markdown frontmatter 双向一致。
- * 文件是否存在由调用方（数据加载层）保证。
- */
-export function validateDocumentIndex(
-  work: Work,
-  frontmatters: Record<string, DocumentFrontmatter>,
-  filePathOf: (docId: string) => string,
-): void {
-  const indexedIds = new Set(work.documents.map((document) => document.id));
-
-  work.documents.forEach((meta) => {
-    const frontmatter = frontmatters[meta.id];
-
-    if (!frontmatter) {
-      throw new DataContractError(
-        filePathOf(meta.id),
-        'id',
-        'V-10',
-        `文档 ${meta.id} 缺少 frontmatter 或对应文件不存在`,
-      );
-    }
-
-    const mismatches: Array<[string, unknown, unknown]> = [
-      ['id', frontmatter.id, meta.id],
-      ['project', frontmatter.project, work.slug],
-      ['stage', frontmatter.stage, meta.stage],
-      ['order', frontmatter.order, meta.order],
-      ['date', frontmatter.date, meta.date],
-    ];
-
-    mismatches.forEach(([field, actual, expected]) => {
-      if (actual !== expected) {
-        throw new DataContractError(
-          filePathOf(meta.id),
-          field,
-          'V-10',
-          `文档 ${meta.id} 的 ${field} 应为 ${String(expected)}，实际为 ${String(actual)}`,
-        );
-      }
-    });
-  });
-
-  Object.keys(frontmatters).forEach((docId) => {
-    if (!indexedIds.has(docId)) {
-      throw new DataContractError(
-        filePathOf(docId),
-        'id',
-        'V-10',
-        `文档 ${docId} 未在 works/${work.slug}.json 中登记`,
-      );
-    }
-  });
 }

@@ -3,6 +3,5 @@ export * from './profile';
 export * from './work';
 export * from './progress';
 export * from './skill';
-export * from './document';
 export * from './errors';
 export * from './validate';

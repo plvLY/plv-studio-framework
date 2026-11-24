@@ -70,14 +70,10 @@ function resolveImageUrl(src: string, slug: string): string {
 }
 
 /** 远程 Markdown 正文：Shiki 高亮、标题 id、Mermaid 内联 SVG、图片绝对地址。 */
-export async function renderMarkdown(
-  body: string,
-  frontmatter: Record<string, unknown>,
-  slug: string,
-): Promise<RenderedMarkdown> {
+export async function renderMarkdown(body: string, slug: string): Promise<RenderedMarkdown> {
   const processor = await getProcessor();
 
-  const rendered = await processor.render(body, { frontmatter }).catch((error: unknown) => {
+  const rendered = await processor.render(body).catch((error: unknown) => {
     const reason = error instanceof Error ? error.message : String(error);
     throw new Error(`Markdown 渲染失败（${slug}）：${reason}`);
   });

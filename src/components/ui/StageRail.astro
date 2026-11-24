@@ -8,6 +8,18 @@ interface Props {
 }
 
 const { stages, currentStage } = Astro.props;
+
+/** 八阶段等宽展示用的短名称；完整名称仍用于 aria-label 与 title。 */
+const STAGE_SHORT_LABELS: Record<string, string> = {
+  planning: '规划',
+  requirements: '需求',
+  design: '设计',
+  architecture: '架构',
+  development: '开发',
+  testing: '测试',
+  deployment: '部署',
+  operations: '迭代',
+};
 ---
 
 <div class="stage-rail" role="list" aria-label="八阶段进度">
@@ -19,10 +31,11 @@ const { stages, currentStage } = Astro.props;
         data-status={stage.status}
         aria-current={stage.stage === currentStage ? 'step' : undefined}
         aria-label={`阶段 ${stage.stage} ${stageNameOf(stage.key)} ${STAGE_STATUS_LABELS[stage.status]}`}
+        title={`阶段 ${stage.stage} ${stageNameOf(stage.key)} · ${STAGE_STATUS_LABELS[stage.status]}`}
       >
         <span class="stage-rail__bar" aria-hidden="true" />
-        <span class="stage-rail__number" aria-hidden="true">
-          {stage.stage}
+        <span class="stage-rail__name" aria-hidden="true">
+          {STAGE_SHORT_LABELS[stage.key] ?? stageNameOf(stage.key)}
         </span>
       </div>
     ))
@@ -59,16 +72,19 @@ const { stages, currentStage } = Astro.props;
     box-shadow: inset -1px 0 0 rgb(255 255 255 / 60%);
   }
 
-  .stage-rail__number {
+  .stage-rail__name {
     color: var(--color-text-muted);
-    font-family: var(--font-family-mono);
-    font-size: 11px;
-    line-height: 1;
+    font-size: 10px;
+    line-height: 1.2;
     text-align: center;
-    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
   }
 
-  .stage-rail__item[aria-current='step'] .stage-rail__number {
+  .stage-rail__item[data-status='completed'] .stage-rail__name {
+    color: var(--color-text-secondary);
+  }
+
+  .stage-rail__item[aria-current='step'] .stage-rail__name {
     color: var(--color-brand);
     font-weight: 600;
   }

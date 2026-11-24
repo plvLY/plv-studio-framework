@@ -1,6 +1,5 @@
 ---
 import type { DevelopingWork } from '../../lib/derive';
-import ProgressBar from '../ui/ProgressBar.astro';
 import StageRail from '../ui/StageRail.astro';
 import StatusBadge from '../ui/StatusBadge.astro';
 
@@ -10,7 +9,8 @@ interface Props {
 }
 
 const { item, href } = Astro.props;
-const { work, project, percent, journey } = item;
+const { work, project, journey } = item;
+const completedStages = project.stages.filter((stage) => stage.status === 'completed').length;
 ---
 
 <article class="developing-card">
@@ -29,13 +29,18 @@ const { work, project, percent, journey } = item;
   <p class="developing-card__journey">
     <span>起始 <time datetime={journey.startDate}>{journey.startDate.slice(5)}</time></span>
     <span class="developing-card__arrow" aria-hidden="true">→</span>
-    <span>阶段 {journey.currentStage} {journey.currentStageName}</span>
-    <span class="developing-card__arrow" aria-hidden="true">→</span>
     <span>更新 <time datetime={journey.recentUpdate}>{journey.recentUpdate.slice(5)}</time></span>
   </p>
 
   <div class="developing-card__progress">
-    <ProgressBar percent={percent} label={journey.currentStageName} />
+    <div class="developing-card__stage-meta">
+      <span class="developing-card__stage-current">
+        阶段 {journey.currentStage} · {journey.currentStageName}
+      </span>
+      <span class="developing-card__stage-count">
+        {completedStages} / {project.stages.length} 已完成
+      </span>
+    </div>
     <StageRail stages={project.stages} currentStage={project.currentStage} />
   </div>
 </article>
@@ -132,9 +137,29 @@ const { work, project, percent, journey } = item;
 
   .developing-card__progress {
     display: grid;
-    gap: var(--space-3);
+    gap: var(--space-2);
     margin-top: auto;
     padding-top: var(--space-2);
+  }
+
+  .developing-card__stage-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-1) var(--space-3);
+    font-size: 12px;
+  }
+
+  .developing-card__stage-current {
+    color: var(--color-brand);
+    font-weight: 600;
+  }
+
+  .developing-card__stage-count {
+    color: var(--color-text-muted);
+    font-family: var(--font-family-mono);
+    font-variant-numeric: tabular-nums;
   }
 
   @media (max-width: 47.999rem) {

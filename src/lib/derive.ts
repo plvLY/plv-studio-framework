@@ -75,7 +75,6 @@ export function deriveJourney(
 export interface DevelopingWork {
   work: Work;
   project: ProjectProgress;
-  percent: number;
   journey: Journey;
 }
 
@@ -98,7 +97,6 @@ export function deriveDeveloping(
         {
           work,
           project,
-          percent: calcPercent(project),
           journey: deriveJourney(work, project, documentsBySlug[work.slug] ?? []),
         },
       ];

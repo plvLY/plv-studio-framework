@@ -90,16 +90,17 @@ const stages = STAGES.map((stage, index) => ({
     width: 28px;
     height: 28px;
     border: var(--border-width) solid var(--color-border-strong);
-    border-radius: 50%;
-    color: var(--color-text-muted);
+    border-radius: var(--radius-xs);
+    color: var(--color-brand);
     font-family: var(--font-family-mono);
-    font-size: 12px;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
     flex-shrink: 0;
   }
 
   .about-process__name {
-    font-size: 16px;
-    font-weight: 600;
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
   }
 
   .about-process__body {
@@ -107,7 +108,7 @@ const stages = STAGES.map((stage, index) => ({
     gap: var(--space-1);
     padding: 0 var(--space-2) var(--space-4) calc(28px + var(--space-3) + var(--space-2));
     color: var(--color-text-secondary);
-    font-size: 14px;
+    font-size: var(--font-size-sm);
     line-height: 1.7;
   }
 
@@ -118,6 +119,6 @@ const stages = STAGES.map((stage, index) => ({
   .about-process__body strong {
     margin-right: var(--space-2);
     color: var(--color-text-primary);
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
   }
 </style>

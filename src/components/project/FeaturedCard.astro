@@ -7,78 +7,64 @@ interface Props {
   work: Work;
   href: string;
   coverUrl: string;
+  /** 主推项目编号，例如 01。 */
+  index?: string;
 }
 
-const { work, href, coverUrl } = Astro.props;
+const { work, href, coverUrl, index } = Astro.props;
 const tags = work.techStack.slice(0, 4);
 ---
 
 <article class="featured-card">
-  <div class="featured-card__bar" aria-hidden="true">
-    <span class="featured-card__dot featured-card__dot--red"></span>
-    <span class="featured-card__dot featured-card__dot--yellow"></span>
-    <span class="featured-card__dot featured-card__dot--green"></span>
-    <span class="featured-card__path">~/works/{work.slug}</span>
+  <div class="featured-card__cover">
+    <img
+      src={coverUrl}
+      alt={work.coverAlt}
+      width="1280"
+      height="720"
+      loading="lazy"
+      decoding="async"
+    />
   </div>
 
   <div class="featured-card__body">
-    <div class="featured-card__text">
-      <p class="featured-card__prompt">$ open {work.slug}</p>
-      <h3 class="featured-card__title">
-        <a class="featured-card__link" href={href}>{work.title}</a>
-      </h3>
-      <p class="featured-card__summary">{work.summary}</p>
-
-      <div class="featured-card__meta">
-        <StatusBadge kind="project" status={work.status} />
-        <ul class="featured-card__tags" aria-label="技术栈">
-          {tags.map((tag) => <li><TechBadge label={tag} /></li>)}
-        </ul>
-      </div>
+    <div class="featured-card__meta">
+      {index && <span class="featured-card__index">{index}</span>}
+      <StatusBadge kind="project" status={work.status} />
     </div>
 
-    <div class="featured-card__cover">
-      <img
-        src={coverUrl}
-        alt={work.coverAlt}
-        width="640"
-        height="360"
-        loading="lazy"
-        decoding="async"
-      />
+    <h3 class="featured-card__title">
+      <a class="featured-card__link" href={href}>{work.title}</a>
+    </h3>
+    <p class="featured-card__summary">{work.summary}</p>
+
+    <div class="featured-card__footer">
+      <ul class="featured-card__tags" aria-label="技术栈">
+        {tags.map((tag) => <li><TechBadge label={tag} /></li>)}
+      </ul>
+      <span class="featured-card__more" aria-hidden="true">查看项目 →</span>
     </div>
   </div>
 </article>
 
 <style>
   .featured-card {
-    --color-surface: #1e293b;
-    --color-border: #334155;
-    --color-border-strong: #475569;
-    --color-text-primary: #e5e7eb;
-    --color-text-secondary: #cbd5e1;
-    --color-text-muted: #94a3b8;
-    --color-brand: #60a5fa;
-    --color-success: #4ade80;
-    --color-page: #0f172a;
-
     position: relative;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    border: var(--border-width) solid var(--color-terminal-border);
-    border-radius: var(--radius-xl);
-    background: var(--color-terminal);
-    color: var(--color-terminal-text);
+    border: var(--border-width) solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-raised);
     transition:
       border-color var(--transition-fast),
-      box-shadow var(--transition-fast);
+      transform var(--transition-fast);
   }
 
   .featured-card:hover,
   .featured-card:focus-within {
-    border-color: #475569;
-    box-shadow: var(--shadow-md);
+    border-color: var(--color-border-strong);
+    transform: translateY(-2px);
   }
 
   .featured-card:focus-within {
@@ -86,78 +72,61 @@ const tags = work.techStack.slice(0, 4);
     outline-offset: 3px;
   }
 
-  .featured-card__bar {
+  .featured-card__cover {
     position: relative;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    height: 36px;
-    padding-inline: var(--space-3);
-    border-bottom: var(--border-width) solid #1e293b;
-    background: rgb(255 255 255 / 4%);
+    aspect-ratio: 2.4 / 1;
+    overflow: hidden;
+    border-bottom: var(--border-width) solid var(--color-border);
+    background: var(--color-surface);
   }
 
-  .featured-card__dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    opacity: 0.75;
-  }
-
-  .featured-card__dot--red {
-    background: #f87171;
-  }
-
-  .featured-card__dot--yellow {
-    background: #fbbf24;
-  }
-
-  .featured-card__dot--green {
-    background: #4ade80;
-  }
-
-  .featured-card__path {
+  .featured-card__cover img {
     position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    color: #94a3b8;
-    font-family: var(--font-family-mono);
-    font-size: 12px;
-    white-space: nowrap;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform var(--transition-base);
+  }
+
+  .featured-card:hover .featured-card__cover img,
+  .featured-card:focus-within .featured-card__cover img {
+    transform: scale(1.02);
   }
 
   .featured-card__body {
-    display: grid;
-    grid-template-columns: 55fr 45fr;
-    gap: var(--space-6);
+    display: flex;
     flex: 1;
-    min-height: 320px;
+    flex-direction: column;
+    gap: var(--space-3);
     padding: var(--space-6);
   }
 
-  .featured-card__text {
+  .featured-card__meta {
     display: flex;
-    flex-direction: column;
+    align-items: center;
     gap: var(--space-3);
-    min-width: 0;
   }
 
-  .featured-card__prompt {
-    margin: 0;
-    color: #60a5fa;
+  .featured-card__index {
+    color: var(--color-brand);
     font-family: var(--font-family-mono);
-    font-size: 13px;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.08em;
   }
 
   .featured-card__title {
     margin: 0;
-    color: #e5e7eb;
-    font-size: 28px;
-    line-height: 1.25;
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-heading);
+    letter-spacing: -0.02em;
   }
 
   .featured-card__link {
-    color: inherit;
+    color: var(--color-text-primary);
     text-decoration: none;
   }
 
@@ -171,19 +140,21 @@ const tags = work.techStack.slice(0, 4);
     display: -webkit-box;
     overflow: hidden;
     margin: 0;
-    color: #cbd5e1;
-    font-size: 15px;
-    line-height: 1.65;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-body);
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 3;
   }
 
-  .featured-card__meta {
+  .featured-card__footer {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
+    justify-content: space-between;
     gap: var(--space-3);
     margin-top: auto;
+    padding-top: var(--space-2);
   }
 
   .featured-card__tags {
@@ -195,33 +166,35 @@ const tags = work.techStack.slice(0, 4);
     list-style: none;
   }
 
-  .featured-card__cover {
-    min-height: 180px;
+  .featured-card__more {
+    color: var(--color-brand);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    white-space: nowrap;
   }
 
-  .featured-card__cover img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    border: var(--border-width) solid #334155;
-    border-radius: var(--radius-md);
-    object-fit: cover;
+  @media (prefers-reduced-motion: reduce) {
+    .featured-card:hover .featured-card__cover img,
+    .featured-card:focus-within .featured-card__cover img {
+      transform: none;
+    }
   }
 
   @media (max-width: 47.999rem) {
+    .featured-card__cover {
+      aspect-ratio: 16 / 9;
+    }
+
     .featured-card__body {
-      grid-template-columns: minmax(0, 1fr);
-      min-height: 0;
-      padding: var(--space-4);
+      padding: var(--space-5);
     }
 
     .featured-card__title {
-      font-size: 24px;
+      font-size: var(--font-size-xl);
     }
 
-    .featured-card__cover {
-      min-height: 0;
-      aspect-ratio: 16 / 9;
+    .featured-card__summary {
+      font-size: var(--font-size-sm);
     }
   }
 </style>

@@ -50,8 +50,8 @@ const svg = diagram.kind === 'mermaid' ? await renderMermaidSvg(diagram.source, 
   .architecture__summary {
     margin: 0 0 var(--space-4);
     color: var(--color-text-secondary);
-    font-size: 15px;
-    line-height: 1.75;
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-body);
   }
 
   .architecture__figure {
@@ -60,7 +60,7 @@ const svg = diagram.kind === 'mermaid' ? await renderMermaidSvg(diagram.source, 
     overflow-x: auto;
     border: var(--border-width) solid var(--color-border);
     border-radius: var(--radius-md);
-    background: #fff;
+    background: var(--color-surface-raised);
   }
 
   .architecture__svg :global(svg) {
@@ -88,30 +88,31 @@ const svg = diagram.kind === 'mermaid' ? await renderMermaidSvg(diagram.source, 
     padding: var(--space-4);
     border: var(--border-width) solid var(--color-border);
     border-radius: var(--radius-md);
-    background: var(--color-surface);
+    background: var(--color-surface-raised);
   }
 
   .architecture__decision-title {
     margin: 0;
-    font-size: 15px;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
   }
 
   .architecture__decision-choice {
     margin: var(--space-1) 0 0;
     color: var(--color-text-primary);
-    font-size: 14px;
+    font-size: var(--font-size-sm);
   }
 
   .architecture__decision-reason {
     margin: var(--space-1) 0 0;
     color: var(--color-text-secondary);
-    font-size: 13px;
+    font-size: var(--font-size-sm);
     line-height: 1.6;
   }
 
   .architecture__link {
     display: inline-block;
     margin-top: var(--space-3);
-    font-size: 14px;
+    font-size: var(--font-size-sm);
   }
 </style>

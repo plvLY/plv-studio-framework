@@ -84,21 +84,21 @@ const { html } = Astro.props;
 <style is:global>
   .markdown-body__content {
     color: var(--color-text-primary);
-    font-size: 16px;
-    line-height: 1.75;
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-body);
   }
 
   .markdown-body__content h1,
   .markdown-body__content h2,
   .markdown-body__content h3,
   .markdown-body__content h4 {
-    line-height: 1.3;
+    line-height: var(--line-height-heading);
     scroll-margin-top: calc(var(--header-height) + var(--space-4));
   }
 
   .markdown-body__content h1 {
     margin: 0 0 var(--space-4);
-    font-size: 28px;
+    font-size: var(--font-size-2xl);
   }
 
   .markdown-body__content h2 {
@@ -110,12 +110,12 @@ const { html } = Astro.props;
 
   .markdown-body__content h3 {
     margin: var(--space-8) 0 var(--space-2);
-    font-size: 20px;
+    font-size: var(--font-size-xl);
   }
 
   .markdown-body__content h4 {
     margin: var(--space-6) 0 var(--space-2);
-    font-size: 18px;
+    font-size: var(--font-size-lg);
   }
 
   .markdown-body__content > :first-child {
@@ -160,7 +160,7 @@ const { html } = Astro.props;
     margin: var(--space-4) 0;
     padding: var(--space-3) var(--space-4);
     border-left: 3px solid var(--color-border-strong);
-    background: var(--color-page);
+    background: var(--color-surface);
     color: var(--color-text-secondary);
   }
 
@@ -177,8 +177,8 @@ const { html } = Astro.props;
 
   .markdown-body__content :not(pre) > code {
     padding: 2px 6px;
-    border-radius: var(--radius-sm);
-    background: var(--color-page);
+    border-radius: var(--radius-xs);
+    background: var(--color-surface);
     color: var(--color-brand);
     font-family: var(--font-family-mono);
     font-size: 0.88em;
@@ -191,7 +191,7 @@ const { html } = Astro.props;
     margin: var(--space-5) auto;
     border: var(--border-width) solid var(--color-border);
     border-radius: var(--radius-md);
-    background: var(--color-page);
+    background: var(--color-surface);
   }
 
   .markdown-body__content svg {
@@ -202,17 +202,17 @@ const { html } = Astro.props;
     padding: var(--space-4);
     border: var(--border-width) solid var(--color-border);
     border-radius: var(--radius-md);
-    background: #fff;
+    background: var(--color-surface-raised);
   }
 
   .markdown-body__content pre {
     margin: 0;
     padding: var(--space-4) var(--space-5);
     overflow-x: auto;
-    background: #0f172a;
-    color: #e5e7eb;
+    background: var(--color-terminal);
+    color: var(--color-terminal-text);
     font-family: var(--font-family-mono);
-    font-size: 13px;
+    font-size: var(--font-size-sm);
     line-height: 1.65;
     scrollbar-width: thin;
   }
@@ -231,7 +231,7 @@ const { html } = Astro.props;
     margin: var(--space-5) 0;
     overflow: hidden;
     border-radius: var(--radius-md);
-    background: #0f172a;
+    background: var(--color-terminal);
   }
 
   .markdown-body__content .code-block__bar {
@@ -241,19 +241,19 @@ const { html } = Astro.props;
     gap: var(--space-3);
     padding: 6px var(--space-3);
     background: rgb(255 255 255 / 6%);
-    color: #cbd5e1;
+    color: var(--color-terminal-text);
     font-family: var(--font-family-mono);
-    font-size: 12px;
+    font-size: var(--font-size-xs);
   }
 
   .markdown-body__content .code-block__copy {
     padding: 2px 8px;
     border: 1px solid rgb(255 255 255 / 20%);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-xs);
     background: rgb(255 255 255 / 8%);
-    color: #e5e7eb;
+    color: var(--color-terminal-text);
     font-family: inherit;
-    font-size: 11px;
+    font-size: var(--font-size-xs);
     cursor: pointer;
   }
 
@@ -271,11 +271,11 @@ const { html } = Astro.props;
   .markdown-body__content table {
     width: 100%;
     border-collapse: collapse;
-    font-size: 14px;
+    font-size: var(--font-size-sm);
   }
 
   .markdown-body__content thead {
-    background: var(--color-brand-soft);
+    background: var(--color-surface);
   }
 
   .markdown-body__content th,
@@ -288,7 +288,7 @@ const { html } = Astro.props;
 
   .markdown-body__content th {
     color: var(--color-text-primary);
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
   }
 
   .markdown-body__content td {
@@ -296,13 +296,13 @@ const { html } = Astro.props;
   }
 
   .markdown-body__content tbody tr:nth-child(even) {
-    background: var(--color-page);
+    background: var(--color-surface);
   }
 
   /* 暗色代码块 */
   [data-theme='dark'] .markdown-body__content pre,
   [data-theme='dark'] .markdown-body__content .code-block {
-    background: #020617;
+    background: var(--color-terminal);
   }
 
   /* 复制反馈（视觉隐藏，仅播报） */

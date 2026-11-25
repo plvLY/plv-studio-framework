@@ -22,22 +22,22 @@ const { title, description, linkHref, linkLabel = '返回首页' } = Astro.props
     display: grid;
     justify-items: center;
     gap: var(--space-3);
-    padding: var(--space-12) var(--space-6);
+    padding: var(--space-16) var(--space-6);
     border: var(--border-width) dashed var(--color-border-strong);
-    border-radius: var(--radius-lg);
-    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-raised);
     text-align: center;
   }
 
   .empty-state__title {
     margin: 0;
-    font-size: 20px;
+    font-size: var(--font-size-xl);
   }
 
   .empty-state__description {
     max-width: 46ch;
     margin: 0;
     color: var(--color-text-secondary);
-    font-size: 14px;
+    font-size: var(--font-size-sm);
   }
 </style>

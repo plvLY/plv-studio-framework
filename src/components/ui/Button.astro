@@ -28,26 +28,31 @@ const className = `button button--${variant}`;
     align-items: center;
     justify-content: center;
     gap: var(--space-2);
-    min-height: 40px;
+    min-height: 44px;
     padding: 0 var(--space-5);
     border: var(--border-width) solid transparent;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-sm);
     font: inherit;
-    font-size: 14px;
-    font-weight: 600;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
     line-height: 1;
     text-decoration: none;
     cursor: pointer;
     transition:
       background-color var(--transition-fast),
       border-color var(--transition-fast),
-      color var(--transition-fast);
+      color var(--transition-fast),
+      transform var(--transition-fast);
+  }
+
+  .button:active:not(:disabled) {
+    transform: translateY(1px);
   }
 
   .button--primary {
     background: var(--color-brand);
     border-color: var(--color-brand);
-    color: var(--color-page);
+    color: var(--color-on-brand);
   }
 
   .button--primary:hover {
@@ -55,14 +60,20 @@ const className = `button button--${variant}`;
     border-color: var(--color-brand-hover);
   }
 
+  .button--primary:active {
+    background: var(--color-brand-hover);
+    border-color: var(--color-brand-hover);
+  }
+
   .button--secondary {
-    background: transparent;
+    background: var(--color-surface-raised);
     border-color: var(--color-border-strong);
     color: var(--color-text-primary);
   }
 
   .button--secondary:hover {
-    border-color: var(--color-text-secondary);
+    border-color: var(--color-brand);
+    color: var(--color-brand);
   }
 
   .button--text {
@@ -71,21 +82,26 @@ const className = `button button--${variant}`;
     border: 0;
     background: transparent;
     color: var(--color-brand);
-    font-weight: 500;
+    font-weight: var(--font-weight-semibold);
   }
 
   .button--text:hover {
+    color: var(--color-brand-hover);
     text-decoration: underline;
   }
 
   .button:disabled {
-    opacity: 0.5;
+    background: var(--color-gray-100);
+    border-color: var(--color-border);
+    color: var(--color-text-tertiary);
+    opacity: 1;
+    cursor: not-allowed;
     pointer-events: none;
   }
 
-  @media (max-width: 47.999rem) {
-    .button:not(.button--text) {
-      min-height: 44px;
+  @media (prefers-reduced-motion: reduce) {
+    .button:active:not(:disabled) {
+      transform: none;
     }
   }
 </style>

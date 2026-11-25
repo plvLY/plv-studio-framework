@@ -1,33 +1,37 @@
 ---
 import type { Profile } from '../../lib/contracts';
-import type { LiveStats as Stats } from '../../lib/derive';
 import Button from '../ui/Button.astro';
-import LiveStats from './LiveStats.astro';
 import HeroVisual from './HeroVisual.astro';
 
 interface Props {
   profile: Profile;
-  stats: Stats;
 }
 
-const { profile, stats } = Astro.props;
+const { profile } = Astro.props;
+const positioning = profile.brand.positioning.split('（')[0].trim();
+
+const bioParts = profile.author.bio.split('，');
+const bioLead = bioParts[0];
+const bioTail = bioParts.slice(1).join('，');
 ---
 
 <section class="hero">
   <div class="container hero__inner">
     <div class="hero__text">
-      <p class="hero__kicker">个人作品与技术实践</p>
-      <h1 class="hero__title">{profile.author.bio}</h1>
-      <p class="hero__subtitle">
-        记录真实项目从需求分析、产品设计、技术架构到开发验收的全过程，每个阶段的文档与技术产物都可追溯。
-      </p>
+      <p class="hero__kicker">{positioning}</p>
+
+      <h1 class="hero__title">
+        <span class="hero__title-line">{bioLead}</span>
+        {bioTail && <span class="hero__title-line hero__title-line--accent">{bioTail}</span>}
+      </h1>
+
+      <p class="hero__subtitle">{profile.home.heroSubtitle}</p>
 
       <div class="hero__actions">
         <Button href="#featured">查看精选作品</Button>
         <Button variant="secondary" href="/about/">了解工作方式</Button>
       </div>
 
-      <LiveStats stats={stats} />
       <p class="hero__author">{profile.author.name} · {profile.author.title}</p>
     </div>
 
@@ -39,62 +43,80 @@ const { profile, stats } = Astro.props;
 
 <style>
   .hero {
-    padding-block: var(--space-16) var(--space-12);
+    padding-block: var(--space-20) var(--space-16);
   }
 
   .hero__inner {
     display: grid;
     grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-    gap: var(--space-12);
+    gap: var(--space-16);
     align-items: center;
   }
 
   .hero__kicker {
-    margin: 0 0 var(--space-2);
-    color: var(--color-brand);
-    font-size: 14px;
-    font-weight: 500;
+    margin: 0 0 var(--space-3);
+    color: var(--color-text-secondary);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
 
   .hero__title {
     margin: 0;
-    font-size: 48px;
-    font-weight: 700;
-    line-height: 1.15;
-    letter-spacing: -0.01em;
+    font-size: clamp(42px, 6vw, var(--font-size-display));
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight);
+    letter-spacing: -0.03em;
+  }
+
+  .hero__title-line {
+    display: block;
+  }
+
+  .hero__title-line--accent {
+    color: var(--color-brand);
   }
 
   .hero__subtitle {
     max-width: 34em;
-    margin: var(--space-4) 0 0;
+    margin: var(--space-6) 0 0;
     color: var(--color-text-secondary);
-    font-size: 18px;
-    line-height: 1.7;
+    font-size: var(--font-size-lg);
+    line-height: var(--line-height-body);
   }
 
   .hero__actions {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-3);
-    margin-top: var(--space-6);
+    margin-top: var(--space-8);
   }
 
   .hero__author {
-    margin: var(--space-6) 0 0;
-    color: var(--color-text-secondary);
-    font-size: 14px;
+    margin: var(--space-8) 0 0;
+    color: var(--color-text-tertiary);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    letter-spacing: 0.04em;
   }
 
   .hero__visual {
     width: 100%;
-    max-width: 420px;
+    max-width: 460px;
     margin-left: auto;
   }
 
   @media (max-width: 63.999rem) {
+    .hero {
+      padding-block: var(--space-12) var(--space-10);
+    }
+
     .hero__inner {
       grid-template-columns: minmax(0, 1fr);
       gap: var(--space-10);
+      align-items: start;
     }
 
     .hero__visual {
@@ -109,15 +131,15 @@ const { profile, stats } = Astro.props;
     }
 
     .hero__title {
-      font-size: 36px;
+      font-size: 42px;
     }
 
     .hero__subtitle {
-      font-size: 16px;
+      font-size: var(--font-size-base);
     }
 
     .hero__visual {
-      max-width: 300px;
+      max-width: 280px;
     }
   }
 </style>

@@ -44,7 +44,6 @@ const isExternal = (url: string) => url.startsWith('https://');
             )}
           </svg>
           <span>{link.label}</span>
-          {isExternal(link.url) && <span class="social-links__arrow" aria-hidden="true">↗</span>}
         </a>
       </li>
     ))
@@ -68,11 +67,11 @@ const isExternal = (url: string) => url.startsWith('https://');
     min-height: 44px;
     padding: 0 var(--space-4);
     border: var(--border-width) solid var(--color-border-strong);
-    border-radius: var(--radius-md);
-    background: var(--color-surface);
+    border-radius: var(--radius-sm);
+    background: var(--color-surface-raised);
     color: var(--color-text-primary);
-    font-size: 14px;
-    font-weight: 500;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
     text-decoration: none;
     transition:
       border-color var(--transition-fast),
@@ -86,10 +85,5 @@ const isExternal = (url: string) => url.startsWith('https://');
 
   .social-links__icon {
     flex-shrink: 0;
-  }
-
-  .social-links__arrow {
-    color: var(--color-text-muted);
-    font-size: 12px;
   }
 </style>

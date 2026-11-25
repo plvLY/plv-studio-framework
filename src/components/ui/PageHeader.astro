@@ -21,30 +21,33 @@ const { title, description, meta } = Astro.props;
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    gap: var(--space-4);
+    gap: var(--space-4) var(--space-8);
     padding-bottom: var(--space-6);
-    border-bottom: var(--border-width) solid var(--color-border);
+    border-bottom: var(--border-width) solid var(--color-border-strong);
   }
 
   .page-header__title {
     margin: 0;
-    font-size: 36px;
-    line-height: 1.25;
+    font-size: var(--font-size-4xl);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-tight);
+    letter-spacing: -0.025em;
   }
 
   .page-header__description {
     max-width: 46em;
-    margin: var(--space-2) 0 0;
+    margin: var(--space-3) 0 0;
     color: var(--color-text-secondary);
-    font-size: 16px;
+    font-size: var(--font-size-lg);
+    line-height: var(--line-height-body);
   }
 
   .page-header__meta {
     flex-shrink: 0;
     margin: 0;
-    color: var(--color-text-muted);
+    color: var(--color-text-tertiary);
     font-family: var(--font-family-mono);
-    font-size: 12px;
+    font-size: var(--font-size-xs);
     font-variant-numeric: tabular-nums;
   }
 
@@ -57,11 +60,11 @@ const { title, description, meta } = Astro.props;
     }
 
     .page-header__title {
-      font-size: 30px;
+      font-size: calc(var(--font-size-4xl) - 20px);
     }
 
     .page-header__description {
-      font-size: 14px;
+      font-size: var(--font-size-base);
     }
   }
 </style>

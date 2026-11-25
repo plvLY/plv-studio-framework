@@ -23,6 +23,9 @@
       root.dataset.theme = theme;
       root.dataset.themeMode = nextMode;
       root.style.colorScheme = theme;
+
+      const themeColor = document.querySelector('meta[name="theme-color"]');
+      themeColor?.setAttribute('content', theme === 'dark' ? '#111111' : '#ffffff');
     };
 
     apply(mode);

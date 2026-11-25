@@ -144,7 +144,7 @@ const { title, description } = Astro.props;
   .doc-layout {
     display: grid;
     grid-template-columns: 220px minmax(0, 1fr) 200px;
-    gap: var(--space-8);
+    gap: var(--space-10);
     padding-block: var(--space-10);
     position: relative;
   }
@@ -177,19 +177,21 @@ const { title, description } = Astro.props;
       justify-self: start;
       align-items: center;
       gap: var(--space-2);
-      padding: 6px 14px;
+      min-height: 44px;
+      padding: 0 var(--space-4);
       border: var(--border-width) solid var(--color-border-strong);
-      border-radius: var(--radius-md);
-      background: var(--color-surface);
+      border-radius: var(--radius-sm);
+      background: var(--color-background);
       color: var(--color-text-primary);
       font: inherit;
-      font-size: 13px;
-      font-weight: 500;
+      font-size: var(--font-size-sm);
+      font-weight: var(--font-weight-semibold);
       cursor: pointer;
     }
 
     .doc-layout__toggle:hover {
       border-color: var(--color-brand);
+      color: var(--color-brand);
     }
 
     .doc-layout__backdrop {
@@ -197,7 +199,7 @@ const { title, description } = Astro.props;
       inset: 0;
       z-index: 69;
       display: block;
-      background: rgb(15 23 42 / 45%);
+      background: rgb(0 0 0 / 50%);
       opacity: 0;
       visibility: hidden;
       transition:
@@ -216,11 +218,11 @@ const { title, description } = Astro.props;
       bottom: 0;
       left: 0;
       z-index: 70;
-      width: min(280px, 80vw);
-      padding: var(--space-6) var(--space-4);
+      width: min(300px, 82vw);
+      padding: var(--space-6) var(--space-5);
       overflow-y: auto;
-      background: var(--color-surface);
-      box-shadow: var(--shadow-md);
+      border-right: var(--border-width) solid var(--color-border);
+      background: var(--color-background);
       transform: translateX(-100%);
       visibility: hidden;
       transition:

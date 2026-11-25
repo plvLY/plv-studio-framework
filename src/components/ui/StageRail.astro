@@ -69,11 +69,10 @@ const STAGE_SHORT_LABELS: Record<string, string> = {
 
   .stage-rail__item[data-status='in-progress'] .stage-rail__bar {
     background: var(--color-brand);
-    box-shadow: inset -1px 0 0 rgb(255 255 255 / 60%);
   }
 
   .stage-rail__name {
-    color: var(--color-text-muted);
+    color: var(--color-text-tertiary);
     font-size: 10px;
     line-height: 1.2;
     text-align: center;
@@ -86,6 +85,6 @@ const STAGE_SHORT_LABELS: Record<string, string> = {
 
   .stage-rail__item[aria-current='step'] .stage-rail__name {
     color: var(--color-brand);
-    font-weight: 600;
+    font-weight: var(--font-weight-semibold);
   }
 </style>

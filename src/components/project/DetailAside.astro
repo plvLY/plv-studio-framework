@@ -153,9 +153,10 @@ const isExternal = (url: string) => url.startsWith('https://');
 
   .detail-aside__heading {
     margin: 0 0 var(--space-2);
-    color: var(--color-text-muted);
-    font-size: 12px;
-    font-weight: 600;
+    color: var(--color-text-tertiary);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
     letter-spacing: 0.08em;
   }
 
@@ -179,12 +180,12 @@ const isExternal = (url: string) => url.startsWith('https://');
     align-items: baseline;
     justify-content: space-between;
     gap: var(--space-3);
-    font-size: 13px;
+    font-size: var(--font-size-sm);
   }
 
   .detail-aside__facts dt {
-    color: var(--color-text-muted);
-    font-size: 12px;
+    color: var(--color-text-tertiary);
+    font-size: var(--font-size-xs);
   }
 
   .detail-aside__facts dd {
@@ -214,12 +215,12 @@ const isExternal = (url: string) => url.startsWith('https://');
   }
 
   .detail-aside__links a {
-    font-size: 13px;
+    font-size: var(--font-size-sm);
   }
 
   .detail-aside__links span {
-    color: var(--color-text-muted);
-    font-size: 12px;
+    color: var(--color-text-tertiary);
+    font-size: var(--font-size-xs);
   }
 
   @media (max-width: 63.999rem) {

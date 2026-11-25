@@ -74,8 +74,8 @@ const description = 'PLV Studio 的公开作品，按记录顺序展示状态、
 
   .projects-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--space-6);
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
+    gap: var(--space-5);
     margin-top: var(--space-8);
   }
 
@@ -84,13 +84,7 @@ const description = 'PLV Studio 的公开作品，按记录顺序展示状态、
     padding-top: var(--space-4);
     border-top: var(--border-width) solid var(--color-border);
     color: var(--color-text-secondary);
-    font-size: 14px;
-  }
-
-  @media (max-width: 63.999rem) {
-    .projects-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+    font-size: var(--font-size-sm);
   }
 
   @media (max-width: 47.999rem) {

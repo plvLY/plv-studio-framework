@@ -120,28 +120,29 @@ const description = `${profile.author.name} · ${profile.author.title}，以及 
     gap: var(--space-8);
     padding: var(--space-6);
     border: var(--border-width) solid var(--color-border);
-    border-radius: var(--radius-lg);
-    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-raised);
   }
 
   .profile-card__name {
     margin: 0;
-    font-size: 24px;
+    font-size: var(--font-size-2xl);
+    font-weight: var(--font-weight-bold);
   }
 
   .profile-card__role {
     margin: var(--space-1) 0 0;
     color: var(--color-brand);
-    font-size: 14px;
-    font-weight: 500;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
   }
 
   .profile-card__bio {
     max-width: 42em;
     margin: var(--space-3) 0 0;
     color: var(--color-text-secondary);
-    font-size: 16px;
-    line-height: 1.75;
+    font-size: var(--font-size-base);
+    line-height: var(--line-height-body);
   }
 
   .profile-card__meta {
@@ -152,7 +153,7 @@ const description = `${profile.author.name} · ${profile.author.title}，以及 
     padding: 0;
     list-style: none;
     color: var(--color-text-primary);
-    font-size: 14px;
+    font-size: var(--font-size-sm);
   }
 
   .profile-card__meta li {
@@ -161,8 +162,8 @@ const description = `${profile.author.name} · ${profile.author.title}，以及 
   }
 
   .profile-card__meta span {
-    color: var(--color-text-muted);
-    font-size: 12px;
+    color: var(--color-text-tertiary);
+    font-size: var(--font-size-xs);
   }
 
   .profile-card__meta a {
@@ -175,8 +176,8 @@ const description = `${profile.author.name} · ${profile.author.title}，以及 
     gap: var(--space-5);
     padding: var(--space-6);
     border: var(--border-width) solid var(--color-border);
-    border-radius: var(--radius-lg);
-    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-raised);
   }
 
   .studio-card__logo {
@@ -188,19 +189,21 @@ const description = `${profile.author.name} · ${profile.author.title}，以及 
 
   .studio-card__name {
     margin: 0;
-    font-size: 22px;
+    font-size: var(--font-size-xl);
+    font-weight: var(--font-weight-bold);
   }
 
   .studio-card__positioning {
     margin: var(--space-1) 0 0;
     color: var(--color-brand);
-    font-size: 14px;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
   }
 
   .studio-card__description {
     margin: var(--space-2) 0 0;
     color: var(--color-text-secondary);
-    font-size: 15px;
+    font-size: var(--font-size-sm);
     line-height: 1.7;
   }
 

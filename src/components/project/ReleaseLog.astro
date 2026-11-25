@@ -53,16 +53,16 @@ const groups = [
     margin: 0 0 var(--space-3);
     color: var(--color-text-secondary);
     font-family: var(--font-family-mono);
-    font-size: 12px;
-    font-weight: 500;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
     letter-spacing: 0.08em;
   }
 
   .release-log__dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--color-text-muted);
+    width: 7px;
+    height: 7px;
+    border-radius: var(--radius-xs);
+    background: var(--color-text-tertiary);
   }
 
   .release-log__group[data-group='released'] .release-log__dot {
@@ -86,18 +86,18 @@ const groups = [
     grid-template-columns: auto auto;
     justify-content: start;
     gap: 2px var(--space-2);
-    font-size: 13px;
+    font-size: var(--font-size-sm);
   }
 
   .release-log__date {
-    color: var(--color-text-muted);
+    color: var(--color-text-tertiary);
     font-family: var(--font-family-mono);
     font-variant-numeric: tabular-nums;
   }
 
   .release-log__project {
     color: var(--color-text-primary);
-    font-weight: 500;
+    font-weight: var(--font-weight-semibold);
     text-decoration: none;
   }
 

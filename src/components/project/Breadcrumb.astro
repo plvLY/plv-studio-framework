@@ -24,8 +24,9 @@ const { parentHref, parentLabel, current } = Astro.props;
     margin: 0;
     padding: 0;
     list-style: none;
-    color: var(--color-text-muted);
-    font-size: 13px;
+    color: var(--color-text-tertiary);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
   }
 
   .breadcrumb li {
@@ -36,7 +37,7 @@ const { parentHref, parentLabel, current } = Astro.props;
 
   .breadcrumb li + li::before {
     content: '/';
-    color: var(--color-text-muted);
+    color: var(--color-text-tertiary);
   }
 
   .breadcrumb a {

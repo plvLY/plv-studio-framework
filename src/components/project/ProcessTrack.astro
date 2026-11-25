@@ -68,8 +68,8 @@ import { STAGES } from '../../lib/constants';
     height: 12px;
     transform: translateX(-50%);
     border: 2px solid var(--color-border-strong);
-    border-radius: 50%;
-    background: var(--color-page);
+    border-radius: var(--radius-xs);
+    background: var(--color-background);
   }
 
   .process-track__link:hover .process-track__name {
@@ -77,13 +77,14 @@ import { STAGES } from '../../lib/constants';
   }
 
   .process-track__index {
-    color: var(--color-text-muted);
+    color: var(--color-brand);
     font-family: var(--font-family-mono);
-    font-size: 11px;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
   }
 
   .process-track__name {
-    font-size: 13px;
+    font-size: var(--font-size-sm);
     line-height: 1.4;
   }
 

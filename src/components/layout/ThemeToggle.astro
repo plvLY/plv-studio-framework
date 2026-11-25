@@ -129,6 +129,9 @@ const { id = 'theme-menu' } = Astro.props;
       element.dataset.themeMode = mode;
       element.style.colorScheme = theme;
 
+      const themeColor = document.querySelector('meta[name="theme-color"]');
+      themeColor?.setAttribute('content', theme === 'dark' ? '#111111' : '#ffffff');
+
       try {
         if (mode === 'system') {
           localStorage.removeItem(storageKey);
@@ -252,8 +255,8 @@ const { id = 'theme-menu' } = Astro.props;
     height: 44px;
     padding: 0;
     border: var(--border-width) solid var(--color-border);
-    border-radius: var(--radius-md);
-    background: var(--color-surface);
+    border-radius: var(--radius-sm);
+    background: var(--color-background);
     color: var(--color-text-secondary);
     cursor: pointer;
     transition:
@@ -288,7 +291,7 @@ const { id = 'theme-menu' } = Astro.props;
     padding: 6px;
     border: var(--border-width) solid var(--color-border);
     border-radius: var(--radius-md);
-    background: var(--color-surface);
+    background: var(--color-surface-raised);
     box-shadow: var(--shadow-md);
   }
 
@@ -308,7 +311,7 @@ const { id = 'theme-menu' } = Astro.props;
     background: transparent;
     color: var(--color-text-secondary);
     font: inherit;
-    font-size: 14px;
+    font-size: var(--font-size-sm);
     text-align: left;
     cursor: pointer;
     transition:
@@ -318,11 +321,11 @@ const { id = 'theme-menu' } = Astro.props;
 
   .theme-toggle__option:hover {
     color: var(--color-text-primary);
-    background: var(--color-page);
+    background: var(--color-surface);
   }
 
   .theme-toggle__option[aria-checked='true'] {
-    color: var(--color-brand);
+    color: var(--color-brand-hover);
     background: var(--color-brand-soft);
   }
 

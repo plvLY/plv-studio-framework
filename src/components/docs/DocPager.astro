@@ -45,17 +45,17 @@ const { prev, next } = Astro.props;
     gap: var(--space-1);
     padding: var(--space-4);
     border: var(--border-width) solid var(--color-border);
-    border-radius: var(--radius-lg);
-    background: var(--color-surface);
+    border-radius: var(--radius-md);
+    background: var(--color-surface-raised);
     text-decoration: none;
     transition:
       border-color var(--transition-fast),
-      box-shadow var(--transition-fast);
+      transform var(--transition-fast);
   }
 
   .doc-pager__item:hover {
     border-color: var(--color-border-strong);
-    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
   }
 
   .doc-pager__item--next {
@@ -64,14 +64,14 @@ const { prev, next } = Astro.props;
   }
 
   .doc-pager__hint {
-    color: var(--color-text-muted);
-    font-size: 12px;
+    color: var(--color-text-tertiary);
+    font-size: var(--font-size-xs);
   }
 
   .doc-pager__title {
     color: var(--color-text-primary);
-    font-size: 14px;
-    font-weight: 600;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
     line-height: 1.5;
   }
 </style>

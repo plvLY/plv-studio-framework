@@ -58,5 +58,56 @@ const pageDescription = description ?? profile.seo.defaultDescription;
       <slot />
     </main>
     <SiteFooter profile={profile} />
+
+    <script>
+      // 英文与数字统一使用等宽字体：包裹文本节点，跳过代码、图标等区域。
+      const monoPattern = /[A-Za-z0-9][A-Za-z0-9._+#/%-]*/g;
+      const skipSelector = 'script, style, code, pre, kbd, samp, textarea, svg, .u-mono';
+
+      const textNodes: Text[] = [];
+      const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+
+      while (walker.nextNode()) {
+        const node = walker.currentNode as Text;
+        const parent = node.parentElement;
+
+        if (!parent || parent.closest(skipSelector)) {
+          continue;
+        }
+
+        monoPattern.lastIndex = 0;
+
+        if (monoPattern.test(node.nodeValue ?? '')) {
+          textNodes.push(node);
+        }
+      }
+
+      textNodes.forEach((node) => {
+        const text = node.nodeValue ?? '';
+        const fragment = document.createDocumentFragment();
+        let lastIndex = 0;
+        let match: RegExpExecArray | null;
+
+        monoPattern.lastIndex = 0;
+
+        while ((match = monoPattern.exec(text)) !== null) {
+          if (match.index > lastIndex) {
+            fragment.append(text.slice(lastIndex, match.index));
+          }
+
+          const span = document.createElement('span');
+          span.className = 'u-mono';
+          span.textContent = match[0];
+          fragment.append(span);
+          lastIndex = match.index + match[0].length;
+        }
+
+        if (lastIndex < text.length) {
+          fragment.append(text.slice(lastIndex));
+        }
+
+        node.replaceWith(fragment);
+      });
+    </script>
   </body>
 </html>

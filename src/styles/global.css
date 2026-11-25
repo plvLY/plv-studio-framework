@@ -9,10 +9,10 @@
   color-scheme: light;
 
   /* Brand */
-  --color-brand: #e10600;
-  --color-brand-hover: #c90000;
-  --color-brand-soft: #fff0f0;
-  /* 品牌色上的文字：浅色主题用白，暗色主题品牌红变亮后改用近黑以满足 AA */
+  --color-brand: #c8553d;
+  --color-brand-hover: #ad4632;
+  --color-brand-soft: #faeeea;
+  /* 品牌色上的文字：浅色主题用白，暗色主题品牌色变亮后改用近黑以满足 AA */
   --color-on-brand: #ffffff;
 
   /* Neutral */
@@ -41,8 +41,8 @@
   --color-success-soft: #eef7f1;
   --color-warning: #a16207;
   --color-warning-soft: #fdf6e7;
-  --color-error: #e10600;
-  --color-error-soft: #fff0f0;
+  --color-error: #c8553d;
+  --color-error-soft: #faeeea;
 
   /* 兼容既有组件引用的旧 Token 名称，统一指向新语义变量 */
   --color-page: var(--color-background);
@@ -54,6 +54,10 @@
   --font-family-sans:
     Inter, 'Helvetica Neue', 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
   --font-family-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  /* 大标题使用衬线体；Playfair Display 未安装时回退 Georgia，中文回退宋体 */
+  --font-family-serif:
+    'Playfair Display', Georgia, 'Times New Roman', 'Noto Serif SC', 'Source Han Serif SC', STSong,
+    SimSun, serif;
 
   --font-size-xs: 12px;
   --font-size-sm: 14px;
@@ -126,9 +130,9 @@
 html[data-theme='dark'] {
   color-scheme: dark;
 
-  --color-brand: #ff3028;
-  --color-brand-hover: #ff514a;
-  --color-brand-soft: #351414;
+  --color-brand: #e07a5f;
+  --color-brand-hover: #ea9078;
+  --color-brand-soft: #3a241f;
   --color-on-brand: #171717;
 
   --color-background: #111111;
@@ -147,8 +151,8 @@ html[data-theme='dark'] {
   --color-success-soft: rgb(74 222 128 / 10%);
   --color-warning: #fbbf24;
   --color-warning-soft: rgb(251 191 36 / 10%);
-  --color-error: #ff3028;
-  --color-error-soft: #351414;
+  --color-error: #e07a5f;
+  --color-error-soft: #3a241f;
 
   --color-terminal: #0a0a0a;
   --color-terminal-border: #333333;
@@ -210,11 +214,23 @@ h6 {
   letter-spacing: -0.01em;
 }
 
+/* 页面级大标题统一使用衬线体，卡片与小标题保持无衬线。 */
+h1,
+h2 {
+  font-family: var(--font-family-serif);
+}
+
 h3,
 h4,
 h5,
 h6 {
   font-weight: var(--font-weight-semibold);
+}
+
+/* 由排版脚本包裹的英文与数字，统一使用等宽字体。 */
+.u-mono {
+  font-family: var(--font-family-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 a {

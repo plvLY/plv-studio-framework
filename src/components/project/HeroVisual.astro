@@ -1,53 +1,113 @@
 <svg
-  class="hero-visual"
-  viewBox="0 0 420 420"
+  viewBox="0 0 480 480"
   fill="none"
   xmlns="http://www.w3.org/2000/svg"
-  aria-hidden="true"
+  role="img"
+  aria-label="几何构成图案：方与圆，坐标与轨迹"
 >
-  <defs>
-    <pattern id="hero-grid" width="28" height="28" patternUnits="userSpaceOnUse">
-      <path d="M28 0H0V28" stroke="var(--color-border)" stroke-width="1" />
-    </pattern>
-  </defs>
-
+  <!-- 网格 -->
+  <g stroke="#d9d3c6" stroke-width="1">
+    <path d="M60 40V440M120 40V440M180 40V440M240 40V440M300 40V440M360 40V440M420 40V440" />
+    <path d="M40 60H440M40 120H440M40 180H440M40 240H440M40 300H440M40 360H440M40 420H440" />
+  </g>
   <rect
-    x="0.5"
-    y="0.5"
-    width="419"
-    height="419"
-    rx="3"
-    fill="var(--color-surface-raised)"
-    stroke="var(--color-border)"
+    x="40"
+    y="40"
+    width="400"
+    height="400"
+    stroke="#c9c2b2"
+    stroke-width="1.5"
   />
-  <rect width="420" height="420" rx="3" fill="url(#hero-grid)" opacity="0.9" />
-
-  <line x1="210" y1="0" x2="210" y2="420" stroke="var(--color-border-strong)" stroke-width="1" />
-  <line x1="0" y1="210" x2="420" y2="210" stroke="var(--color-border-strong)" stroke-width="1" />
-
-  <circle cx="210" cy="210" r="140" stroke="var(--color-border)" stroke-width="1" />
-  <circle cx="210" cy="210" r="92" stroke="var(--color-border-strong)" stroke-width="1" />
-
-  <rect x="258" y="128" width="88" height="88" fill="var(--color-brand)" />
+  <!-- 坐标轴 -->
+  <path d="M240 40V440M40 240H440" stroke="#1c1a17" stroke-width="1.5" />
+  <!-- 缓慢旋转的刻度环 -->
+  <g class="spin-slow" stroke="#96907f" stroke-width="1" stroke-dasharray="2 9">
+    <circle cx="240" cy="240" r="128" />
+  </g>
+  <!-- 主圆 -->
+  <circle cx="240" cy="240" r="92" stroke="#1c1a17" stroke-width="2" />
+  <!-- 反向旋转的小弧 -->
+  <g class="spin-rev">
+    <path
+      d="M 240 132 A 108 108 0 0 1 348 240"
+      stroke="#c24d2c"
+      stroke-width="2.5"
+    />
+    <circle cx="240" cy="132" r="4" fill="#1c1a17" />
+  </g>
+  <!-- 橙色主方块：产品 -->
+  <rect x="296" y="206" width="104" height="104" fill="#c24d2c" />
   <rect
-    x="132"
-    y="222"
-    width="88"
-    height="88"
-    fill="none"
-    stroke="var(--color-text-primary)"
+    x="296"
+    y="206"
+    width="104"
+    height="104"
+    stroke="#1c1a17"
+    stroke-width="1.5"
+  />
+  <!-- 空心方块：想法 -->
+  <rect
+    x="148"
+    y="296"
+    width="76"
+    height="76"
+    stroke="#1c1a17"
     stroke-width="2"
   />
-
-  <circle cx="210" cy="210" r="6" fill="var(--color-brand)" />
-  <circle cx="210" cy="70" r="3" fill="var(--color-text-primary)" />
-  <circle cx="350" cy="210" r="3" fill="var(--color-text-primary)" />
+  <!-- 中心点与脉冲 -->
+  <circle cx="240" cy="240" r="7" fill="#c24d2c" />
+  <circle
+    class="pulse"
+    cx="240"
+    cy="240"
+    r="15"
+    stroke="#c24d2c"
+    stroke-width="1.5"
+  />
+  <!-- 轴端标记 -->
+  <circle cx="240" cy="40" r="4" fill="#1c1a17" />
+  <circle cx="440" cy="240" r="4" fill="#1c1a17" />
+  <circle cx="240" cy="440" r="4" fill="#1c1a17" />
+  <circle cx="40" cy="240" r="4" fill="#1c1a17" />
+  <!-- 标注 -->
+  <text
+    x="304"
+    y="196"
+    font-family="monospace"
+    font-size="11"
+    fill="#96907f"
+    letter-spacing="2"
+  >
+    作品
+  </text>
+  <text
+    x="148"
+    y="390"
+    font-family="monospace"
+    font-size="11"
+    fill="#96907f"
+    letter-spacing="2"
+  >
+    想法
+  </text>
+  <text
+    x="206"
+    y="228"
+    font-family="monospace"
+    font-size="11"
+    fill="#96907f"
+    letter-spacing="2"
+  >
+    过程
+  </text>
 </svg>
+<div class="art-cap">构建. 记录. 交付</div>
 
 <style>
-  .hero-visual {
-    display: block;
-    width: 100%;
-    height: auto;
+  .art-cap {
+    text-align: center;
+    font-size: 11.5px;
+    letter-spacing: 2px;
+    color: #96907f;
   }
 </style>

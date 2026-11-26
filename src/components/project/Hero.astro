@@ -1,18 +1,19 @@
 ---
-import type { Profile } from '../../lib/contracts';
-import Button from '../ui/Button.astro';
-import HeroVisual from './HeroVisual.astro';
+import type { Profile } from "../../lib/contracts";
+import Button from "../ui/Button.astro";
+import HeroVisual from "./HeroVisual.astro";
 
 interface Props {
   profile: Profile;
 }
 
 const { profile } = Astro.props;
-const positioning = profile.brand.positioning.split('（')[0].trim();
+// const positioning = profile.brand.positioning.split('（')[0].trim();
+const positioning = profile.brand.positioning.trim();
 
-const bioParts = profile.author.bio.split('，');
-const bioLead = bioParts[0];
-const bioTail = bioParts.slice(1).join('，');
+const bioParts = profile.author.bio.split("，");
+const bioLead = bioParts[0].concat('，');
+const bioTail = bioParts.slice(1).join("");
 ---
 
 <section class="hero">
@@ -22,17 +23,25 @@ const bioTail = bioParts.slice(1).join('，');
 
       <h1 class="hero__title">
         <span class="hero__title-line">{bioLead}</span>
-        {bioTail && <span class="hero__title-line hero__title-line--accent">{bioTail}</span>}
+        {bioTail && (
+          <span class="hero__title-line hero__title-line--accent">
+            {bioTail}
+          </span>
+        )}
       </h1>
 
       <p class="hero__subtitle">{profile.home.heroSubtitle}</p>
 
       <div class="hero__actions">
         <Button href="#featured">查看精选作品</Button>
-        <Button variant="secondary" href="/about/">了解工作方式</Button>
+        <Button variant="secondary" href="/about/">
+          了解工作方式 ↗
+        </Button>
       </div>
-
-      <p class="hero__author">{profile.author.name} · {profile.author.title}</p>
+      <p class="hero__author">
+        <span class="status__dot"></span>
+        {profile.author.name} · {profile.author.title}
+      </p>
     </div>
 
     <div class="hero__visual">
@@ -100,6 +109,15 @@ const bioTail = bioParts.slice(1).join('，');
     font-family: var(--font-family-mono);
     font-size: var(--font-size-xs);
     letter-spacing: 0.04em;
+  }
+
+  .status__dot {
+    margin-right: 5px;
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background: var(--color-brand);
+    border-radius: 50% !important;
   }
 
   .hero__visual {

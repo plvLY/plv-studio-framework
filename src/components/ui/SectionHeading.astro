@@ -31,7 +31,7 @@ const {
   {
     linkHref && (
       <a class="section-heading__link" href={linkHref}>
-        {linkLabel}
+        {linkLabel} ↗
       </a>
     )
   }
@@ -39,6 +39,7 @@ const {
 
 <style>
   .section-heading {
+    position: relative;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: end;
@@ -48,16 +49,14 @@ const {
     border-top: var(--border-width) solid var(--color-border-strong);
   }
 
-  .section-heading[data-has-index] {
-    grid-template-columns: auto minmax(0, 1fr) auto;
-  }
-
+  /* 编号独占一行，标题区与右侧链接在同一行 */
   .section-heading__index {
+    grid-column: 1 / -1;
     margin: 0;
-    color: var(--color-brand);
+    color: var(--color-gray-500);
     font-family: var(--font-family-mono);
     font-size: var(--font-size-xs);
-    font-weight: var(--font-weight-semibold);
+    font-weight: var(--font-weight-regular);
     line-height: 1.6;
     letter-spacing: 0.08em;
   }
@@ -75,7 +74,7 @@ const {
   .section-heading__title {
     margin: 0;
     font-size: var(--font-size-3xl);
-    font-weight: var(--font-weight-bold);
+    font-weight: var(--font-weight-regular);
     line-height: var(--line-height-heading);
     letter-spacing: -0.02em;
   }
@@ -93,7 +92,7 @@ const {
     flex-shrink: 0;
     padding-bottom: 2px;
     border-bottom: var(--border-width) solid currentColor;
-    color: var(--color-brand);
+    color: var(--color-text-primary);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);
     text-decoration: none;
@@ -116,6 +115,10 @@ const {
     .section-heading[data-has-index] {
       grid-template-columns: auto minmax(0, 1fr);
       column-gap: var(--space-4);
+    }
+
+    .section-heading__index {
+      grid-column: auto;
     }
 
     .section-heading__title {
